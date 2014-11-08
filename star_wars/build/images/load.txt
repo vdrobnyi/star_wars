@@ -1,0 +1,7 @@
+ship images/ship.gif
+planet images/planet.gif
+universe images/universe.jpg
+gold images/gold.jpg
+iron images/iron.jpg
+angar images/angar.jpg
+shipBuild images/shipBuild.jpg

@@ -1,0 +1,25 @@
+<project name="StarWars" default="compile">
+    <target name="compile" description="Compile app" depends="makeDir" >
+        <javac destdir="build/" fork="yes" executable="C:/Program Files/Java/jdk1.8.0_11/bin/javac">
+            <src path="src"/>
+        </javac>
+    </target>
+    <target name="run" description="Run app" >
+        <java dir="build" classname="Main" fork="true" />
+    </target>
+    <target name="test" description="Start auto tests" >
+        <java dir="build" classname="Tester" fork="true" />
+    </target>
+    <target name="makeDir" description="Make directoris" depends="clear" >
+        <mkdir dir="build"/>
+        <copy todir="build/images">
+            <fileset dir="images"/>
+        </copy>
+    </target>
+    <target name="clear" description="Clear directoris" >
+        <echo>Clear</echo>
+        <delete dir="build/images"/>
+        <delete dir="build/class"/>
+        <delete dir="build"/>
+    </target>
+</project>
