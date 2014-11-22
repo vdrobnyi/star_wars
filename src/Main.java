@@ -1,3 +1,6 @@
+import graphics.ViewFrame;
+import logic.Universe;
+
 public class Main {
 
     public static void main(String[] args) {
