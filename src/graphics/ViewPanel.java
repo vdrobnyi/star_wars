@@ -48,19 +48,15 @@ public class ViewPanel extends JPanel implements ActionListener {
                 double y = (eY + frame.startY) / (Properties.properties.UNIVERSE_SIZE_Y / 2.0) - 1;
 
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    SpaceShip s = frame.currentPlayer.getShip(x, y);
-                    if (s != null) {
-                        frame.currentObject = s;
-                        frame.getBarPanel().enableButtons(false);
-                    } else {
-                        Planet p = universe.getPlanet(x, y);
-                        if (p != null && frame.currentPlayer.equals(p.getMaster())) {
-                            frame.currentObject = p;
-                            frame.getBarPanel().enableButtons(true);
-                        } else {
-                            frame.currentObject = null;
+                    frame.currentObject = universe.getObject(x, y);
+
+                    if (frame.currentObject instanceof Planet) {
+                        frame.getBarPanel().enableButtons(true);
+                        if (!frame.currentPlayer.equals(((Planet)frame.currentObject).getMaster())) {
                             frame.getBarPanel().enableButtons(false);
                         }
+                    } else {
+                        frame.getBarPanel().enableButtons(false);
                     }
                 }
                 else if (e.getButton() == MouseEvent.BUTTON3 && frame.currentObject != null && frame.currentObject instanceof SpaceShip)

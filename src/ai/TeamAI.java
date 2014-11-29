@@ -15,9 +15,6 @@ public class TeamAI implements AIInterface {
     private Player player;
     private int k = 2;
 
-    private int[] maxMas;
-    private int[] ind;
-    private double maxVal = -10e10;
 
 
     public TeamAI(Universe u, Player p) {
@@ -69,21 +66,39 @@ public class TeamAI implements AIInterface {
         return actions;
     }
 
+    private Action[] maxMas;
+    private Action[] ind;
+    private double maxVal = -10e10;
+
+
     private void getMax(int l, HashMap<SpaceShip, List<Action>> actions) {
         maxVal = -10e10;
+        if (l == 0) {
+            maxMas = new Action[player.getShips().size()];
+            ind = new Action[player.getShips().size()];
+        }
         if (l == player.getShips().size()) {
             ArrayList<Action> a = new ArrayList<Action>();
             for (int i = 0; i < player.getShips().size(); i++) {
-                a.add(actions.get(player.getShips().get(i)).get(ind[i]));
+                a.add(ind[i]);
             }
-            if (EvaluationFunctions.MR(universe, player,  a) > maxVal) {
+            if (EvaluationFunctions.MR(universe, player, a) > maxVal) {
                 for (int i = 0; i < player.getShips().size(); i++)
                     maxMas[i] = ind[i];
                 maxVal = EvaluationFunctions.MR(universe, player,  a);
             }
         } else {
-            for (int i = 0; i < k; i++) {
-                ind[l] = i;
+            SpaceShip ship = null;
+            int i = 0;
+            for (SpaceShip s: actions.keySet()) {
+                if (i == l) {
+                    ship = s;
+                    break;
+                }
+                i++;
+            }
+            for (Action a: actions.get(ship)) {
+                ind[l] = a;
                 getMax(l + 1, actions);
             }
         }
@@ -99,27 +114,33 @@ public class TeamAI implements AIInterface {
         }
         for (final SpaceShip s: player.getShips()) {
             ArrayList<Action> actions = getActionsToShip(s);
+            for (Action a: actions) {
+                System.out.println(a.action + " " + a.target.getX() + " " + a.target.getY()
+                        + " " + EvaluationFunctions.AR(universe, player, s, a));
+            }
             actions.sort(new Comparator<Action>() {
                 @Override
                 public int compare(Action o1, Action o2) {
                     if (EvaluationFunctions.AR(universe, player, s, o1) < EvaluationFunctions.AR(universe, player, s, o2))
                         return 1;
                     else if (EvaluationFunctions.AR(universe, player, s, o1) == EvaluationFunctions.AR(universe, player, s, o2))
-                        return 0;
-                    return 1;
+                        return 1;
+                    return -1;
                 }
             });
+            System.out.println("________________________________________________");
+            for (Action a: actions) {
+                System.out.println(a.action + " " + a.target.getX() + " " + a.target.getY()
+                        + " " + EvaluationFunctions.AR(universe, player, s, a));
+            }
+            System.out.println("=================================================");
+
             map.put(s, actions.subList(0, k));
         }
-        maxMas = new int[player.getShips().size()];
-        ind = new int[player.getShips().size()];
-
         getMax(0, map);
-        int i = 0;
-        for (SpaceShip s: player.getShips()) {
-            Action a = map.get(s).get(maxMas[i]);
+        for (Action a: maxMas) {
+            SpaceShip s = a.ship;
             shipAction(s, a);
-            i++;
         }
     }
 }

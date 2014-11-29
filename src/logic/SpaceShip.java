@@ -11,7 +11,7 @@ public class SpaceShip extends UniverseObject {
     private Player master;
     private double targetX, targetY;
     private double x, y;
-    boolean isAlive = true;
+    private boolean isAlive = true;
     private int id;
     private double speed = Properties.properties.SHIP_SPEED;
     private double fuel = Properties.properties.SHIP_FUEL;
@@ -62,14 +62,16 @@ public class SpaceShip extends UniverseObject {
     }
 
     public void tick(int tickNumber) {
-        boolean attack = tickNumber < lastAttack + Properties.properties.SHIP_ATTACK_DELAY;
+        boolean attack =
+                (tickNumber < (lastAttack + Properties.properties.SHIP_ATTACK_DELAY));
 
-        for (int i = 0; i < universe.getPlayers().length; i++) {
-            Player p = universe.getPlayers()[i];
+        for (int i = 0; i < universe.getPlayers().size(); i++) {
+            Player p = universe.getPlayers().get(i);
             if (!p.equals(getMaster())) {
                 for (int j = 0; j < p.getShips().size(); j++) {
                     SpaceShip s = p.getShips().get(j);
-                    if (s.isAlive() && isAlive() && dist(s) < 0.1 && !attack) {
+                    double d = dist(s);
+                    if (s.isAlive() && isAlive() && d < Properties.properties.SHIP_ATTACK_RANGE && !attack) {
                         universe.attack(this, s);
                         attack = true;
                         lastAttack = tickNumber;

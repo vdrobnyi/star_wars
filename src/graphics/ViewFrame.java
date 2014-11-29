@@ -31,7 +31,7 @@ public class ViewFrame extends JFrame {
         universe = u;
         startX = 0;
         startY = 0;
-        ai = new TeamAI(universe, u.getPlayers()[0]);
+        ai = new SingletonAI(universe, u.getPlayers().get(0));
         panel = new ViewPanel(this);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         bar = new BarPanel(this);
@@ -43,11 +43,12 @@ public class ViewFrame extends JFrame {
 
 
         setFocusable(true);
-
+        setUndecorated(true);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setVisible(true);
 
-        currentPlayer = universe.getPlayers()[currentPlayerNum];
+
+        currentPlayer = universe.getPlayers().get(currentPlayerNum);
         currentObject = currentPlayer.getShips().get(currentShipNum);
     }
 

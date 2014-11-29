@@ -4,40 +4,51 @@ import java.util.*;
 
 public class Universe {
     private int tickNumber;
-    private Player[] players;
+    private List<Player> players;
     private List<Bullet> bullets;
-    private Planet[] planets;
+    private List<Planet> planets;
     private boolean isEnd = false;
     private Random rand = new Random();
 
     public Universe() {
         tickNumber = 0;
-        planets = new Planet[3];
+        planets = new ArrayList<Planet>();//new Planet[3];
         bullets = new LinkedList<Bullet>();
-        planets[0] = new Planet(0, 0, IdGenerator.getNewId(), 1);
-        planets[1] = new Planet(0.325, 0.745, IdGenerator.getNewId(), 2);
-        planets[2] = new Planet(-0.225, 0.025, IdGenerator.getNewId(), 3);
+        planets.add(new Planet(0, 0, IdGenerator.getNewId(), 1));
+        planets.add(new Planet(0.325, 0.745, IdGenerator.getNewId(), 2));
+        planets.add(new Planet(-0.225, 0.025, IdGenerator.getNewId(), 3));
 
-        players = new Player[2];
-        players[0] = new Player(1, this);
-        players[1] = new Player(2, this);
+        players = new ArrayList<Player>();//new Player[2];
+        players.add(new Player(1, this));
+        players.add(new Player(2, this));
+
+
+        players.get(0).addShip(new SpaceShip(-0.8, -0.8, players.get(0), IdGenerator.getNewId(), this));
+        players.get(0).addShip(new SpaceShip(0.8, -0.8, players.get(0), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(0.5, 0.8, players.get(1), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(0.0, 0.8, players.get(1), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(0.5, 0.8, players.get(1), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(0.0, 0.8, players.get(1), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(0.5, 0.8, players.get(1), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(0.0, 0.8, players.get(1), IdGenerator.getNewId(), this));
+
     }
 
     public Universe(Universe u) {
-        planets = new Planet[u.getPlanets().length];
+        planets = new ArrayList<Planet>();//new Planet[u.getPlanets().length];
         bullets = new LinkedList<Bullet>();
-        players = new Player[u.getPlayers().length];
+        players = new ArrayList<Player>();//new Player[u.getPlayers().length];
         int i = 0;
         for (Player p: u.getPlayers()) {
-            players[i++] = new Player(1, this, p);
+            players.add(new Player(1, this, p));
         }
         i = 0;
         for (Planet p: u.getPlanets()) {
-            planets[i++] = new Planet(p.getX(), p.getY(), 1, p.getRadius());
+            planets.add(new Planet(p.getX(), p.getY(), 1, p.getRadius()));
             int j = 0;
-            while (j < u.planets.length && !u.planets[j].equals(p.getMaster())) j++;
-            if (j < u.planets.length) {
-                planets[i - 1].changeMaster(players[j]);
+            while (j < u.planets.size() && !u.planets.get(j).equals(p.getMaster())) j++;
+            if (j < u.planets.size()) {
+                planets.get(i - 1).changeMaster(players.get(j));
             }
         }
     }
@@ -50,12 +61,12 @@ public class Universe {
         return isEnd;
     }
 
-    public Player[] getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
     public void attack(SpaceShip attacker, SpaceShip target) {
-        target.attacked(Properties.properties.SHIP_DAMAGE * (rand.nextInt(6)));
+        target.attacked(Properties.properties.SHIP_DAMAGE * (rand.nextInt(Properties.properties.ATTACK_RANGE)));
         makeBullet(attacker, target);
     }
 
@@ -64,10 +75,10 @@ public class Universe {
     }
 
     public Planet getNearestPlanet(double x, double y) {
-        double dist = 10;
+        double dist = Properties.properties.UNIVERSE_MAX_DIST;
         Planet res = null;
         for (Planet s: planets) {
-            double d = Universe.distanse(x, y, s.getX(), s.getY());
+            double d = Universe.distance(x, y, s.getX(), s.getY());
             if (d < dist) {
                 dist = d;
                 res = s;
@@ -75,7 +86,30 @@ public class Universe {
         }
         return res;
     }
-    
+
+    public UniverseObject getNearestObject(double x, double y) {
+        UniverseObject res = getNearestPlanet(x, y);
+        double dist = Universe.distance(x, y, res.getX(), res.getY());
+        for (Player p: players) {
+            for (SpaceShip s: p.getShips()) {
+                double d = Universe.distance(x, y, s.getX(), s.getY());
+                if (d < dist) {
+                    dist = d;
+                    res = s;
+                }
+            }
+        }
+        return res;
+    }
+
+    public UniverseObject getObject(double x, double y) {
+        UniverseObject res = getNearestObject(x, y);
+        if (res != null && Universe.distance(x, y, res.getX(), res.getY()) < (Properties.properties.SHIP_RADIOUS * res.getRadius())) {
+            return res;
+        }
+        return null;
+    }
+
     public void makeBullet(SpaceShip attacker, SpaceShip target) {
         bullets.add(new Bullet(attacker.getX(), attacker.getY(),
                 target.getX() + (rand.nextDouble() / 100), target.getY() + (rand.nextDouble() / 100),
@@ -91,7 +125,7 @@ public class Universe {
 
     public Planet getPlanet(double x, double y) {
         Planet res = getNearestPlanet(x, y);
-        if (res != null && Universe.distanse(x, y, res.getX(), res.getY()) < (Properties.properties.SHIP_RADIOUS * res.getRadius())) {
+        if (res != null && Universe.distance(x, y, res.getX(), res.getY()) < (Properties.properties.SHIP_RADIOUS * res.getRadius())) {
             return res;
         }
         return null;
@@ -112,30 +146,16 @@ public class Universe {
         }
         tickBullets();
     }
-    /*
-    public Universe getCopy() {
-        Universe u = new Universe();
-        for (int i = 0; i < players.length; i++) {
-            for (SpaceShip s: u.players[i].getShips()) {
-                s.kill();
-            }
-            for (SpaceShip s: players[i].getShips()) {
-                SpaceShip ns = new SpaceShip(s.getX(), s.getY(), u.players[i], 1, u);
-                u.players[i].addShip(ns);
-            }
-        }
-        for (int i = 0; i < )
-    }*/
 
     public List<Bullet> getBullets() {
         return bullets;
     }
 
-    public Planet[] getPlanets() {
+    public List<Planet> getPlanets() {
         return planets;
     }
 
-    public static double distanse(double x1, double y1, double x2, double y2) {
+    public static double distance(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
 }
