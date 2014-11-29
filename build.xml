@@ -2,18 +2,29 @@
 
     <target name="compile" description="Compile app" depends="makeDir" >
         <javac includeantruntime="false" destdir="build/" fork="yes" >
+            <classpath>
+                <pathelement location = ".\build"/>
+                <pathelement path = "./hamcrest-core-1.3.jar"/>
+                <pathelement path = "./junit-4.11.jar"/>
+            </classpath>
+
             <src path="src"/>
+            <src path="tests"/>
         </javac>
+
     </target>
     <target name="run" description="Run app" depends="compile" >
         <java dir="build" classname="Main" fork="true" />
     </target>
+
     <target name="test" depends="compile">
-        <junit>
+        <junit fork="true">
             <classpath>
+                <pathelement location = ".\build"/>
                 <pathelement path = "./hamcrest-core-1.3.jar"/>
                 <pathelement path = "./junit-4.11.jar"/>
             </classpath>
+            <formatter type="brief" usefile="false"/>
             <test name="tests.BulletTest"/>
             <test name="tests.PlanetTest"/>
             <test name="tests.PlayerTest"/>
@@ -21,9 +32,7 @@
             <test name="tests.UniverseTest"/>
         </junit>
     </target>
-    <target name="test1" description="Start auto tests" >
-        <java dir="build" classname="Tester" fork="true" />
-    </target>
+
     <target name="makeDir" description="Make directoris" depends="clean" >
         <mkdir dir="build"/>
         <copy todir="build/images">
@@ -37,3 +46,8 @@
         <delete dir="build"/>
     </target>
 </project>
+
+
+    <!--<classpath>-->
+        <!--<pathelement location = ".\build" />-->
+    <!--</classpath>-->
