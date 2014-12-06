@@ -2,6 +2,8 @@ package tests;
 
 import ai.RandomAI;
 import ai.SingletonAI;
+import ai.TeamAI;
+
 import logic.Bullet;
 import logic.Player;
 
@@ -40,8 +42,8 @@ public class AITest {
             u.tick();
             ai.action();
             rai.action();
-            if (u.isEndGame())){
-                assertTrue(u.getWinner().equals(u.getPlayers().get(0));
+            if (u.isEndGame()){
+                assertTrue(u.getWinner().equals(u.getPlayers().get(0)));
                 return;
             }
         }
@@ -56,8 +58,8 @@ public class AITest {
             u.tick();
             ai.action();
             rai.action();
-            if (u.isEndGame())){
-                assertTrue(u.getWinner().equals(u.getPlayers().get(0));
+            if (u.isEndGame()){
+                assertTrue(u.getWinner().equals(u.getPlayers().get(0)));
                 return;
             }
         }
