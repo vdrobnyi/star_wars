@@ -49,7 +49,10 @@ public class ViewPanel extends JPanel implements ActionListener {
 
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     frame.currentObject = universe.getObject(x, y);
-
+                    if (!frame.currentPlayer.equals(frame.currentObject.getMaster())) {
+                        frame.currentObject = null;
+                        return;
+                    }
                     if (frame.currentObject instanceof Planet) {
                         frame.getBarPanel().enableButtons(true);
                         if (!frame.currentPlayer.equals(((Planet)frame.currentObject).getMaster())) {

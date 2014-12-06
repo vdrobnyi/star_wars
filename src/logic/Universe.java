@@ -9,16 +9,45 @@ public class Universe {
     private List<Planet> planets;
     private boolean isEnd = false;
     private Random rand = new Random();
+    private Player winner = null;
 
     public Universe() {
         tickNumber = 0;
         planets = new ArrayList<Planet>();//new Planet[3];
         bullets = new LinkedList<Bullet>();
+        players = new ArrayList<Player>();//new Player[2];
+
+        /*
         planets.add(new Planet(0, 0, IdGenerator.getNewId(), 1));
         planets.add(new Planet(0.325, 0.745, IdGenerator.getNewId(), 2));
         planets.add(new Planet(-0.225, 0.025, IdGenerator.getNewId(), 3));
 
+        players.add(new Player(1, this));
+        players.add(new Player(2, this));
+
+
+        players.get(0).addShip(new SpaceShip(-0.8, -0.8, players.get(0), IdGenerator.getNewId(), this));
+        players.get(0).addShip(new SpaceShip(0.8, -0.8, players.get(0), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(0.5, 0.8, players.get(1), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(0.0, 0.8, players.get(1), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(0.5, 0.8, players.get(1), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(0.0, 0.8, players.get(1), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(0.5, 0.8, players.get(1), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(0.0, 0.8, players.get(1), IdGenerator.getNewId(), this));
+        */
+    }
+
+    public Universe(boolean a) {
+        tickNumber = 0;
+        planets = new ArrayList<Planet>();//new Planet[3];
+        bullets = new LinkedList<Bullet>();
         players = new ArrayList<Player>();//new Player[2];
+
+
+        planets.add(new Planet(0, 0, IdGenerator.getNewId(), 1));
+        planets.add(new Planet(0.325, 0.745, IdGenerator.getNewId(), 2));
+        planets.add(new Planet(-0.225, 0.025, IdGenerator.getNewId(), 3));
+
         players.add(new Player(1, this));
         players.add(new Player(2, this));
 
@@ -32,6 +61,14 @@ public class Universe {
         players.get(1).addShip(new SpaceShip(0.5, 0.8, players.get(1), IdGenerator.getNewId(), this));
         players.get(1).addShip(new SpaceShip(0.0, 0.8, players.get(1), IdGenerator.getNewId(), this));
 
+    }
+
+    public void addPlanet(Planet p) {
+        planets.add(p);
+    }
+
+    public void addPlayer(Player p) {
+        players.add(p);
     }
 
     public Universe(Universe u) {
@@ -55,6 +92,37 @@ public class Universe {
 
     public void end() {
         isEnd = true;
+        for (Player p: players) {
+            if (p.getShips().size() > 0) {
+                winner = p;
+                return;
+            }
+        }
+        for (Planet p: planets) {
+            if (p.getMaster() != null) {
+                winner = p.getMaster();
+                return;
+            }
+        }
+    }
+
+    public Player getWinner() {
+        return winner;
+    }
+
+    public boolean isEnd() {
+        Set<Player> set = new HashSet<Player>();
+        for (Player p: players) {
+            if (p.getShips().size() > 0) {
+                set.add(p);
+            }
+        }
+        for (Planet p: planets) {
+            if (p.getMaster() != null) {
+                set.add(p.getMaster());
+            }
+        }
+        return set.size() <= 1;
     }
 
     public boolean isEndGame() {
@@ -145,6 +213,11 @@ public class Universe {
             }
         }
         tickBullets();
+        if (tickNumber % 50 == 0) {
+            if (isEnd()) {
+                end();
+            }
+        }
     }
 
     public List<Bullet> getBullets() {

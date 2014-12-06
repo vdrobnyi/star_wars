@@ -16,6 +16,10 @@ public abstract class UniverseObject {
         return 1;
     }
 
+    public Player getMaster() {
+        return null;
+    }
+
     public String getInfo() {
         return null;
     }
