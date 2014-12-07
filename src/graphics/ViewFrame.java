@@ -31,7 +31,7 @@ public class ViewFrame extends JFrame {
         universe = u;
         startX = 0;
         startY = 0;
-        ai = new SingletonAI(universe, u.getPlayers().get(0));
+        ai = new SingletonAI(universe, u.getPlayers().get(1));
         panel = new ViewPanel(this);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         bar = new BarPanel(this);

@@ -5,10 +5,7 @@
 	</player>
 	<player id="2">
 		<ship x="0.5" y="-0.5"/>
-		<ship x="0.5" y="0.5"/>
-
-		<planet x="0" y="0" radius="2"/>
-	
+		<ship x="0.5" y="0.5"/>             	
 	</player>
-	<planet x="0.7" y="0.9" radius="2"/>
+	<planet x="0" y="0" radius="2"/>
 </universe>
