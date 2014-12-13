@@ -30,6 +30,7 @@
             <test name="tests.PlayerTest"/>
             <test name="tests.SpaceShipTest"/>
             <test name="tests.UniverseTest"/>
+            <test name="tests.AITest"/>
         </junit>
     </target>
 

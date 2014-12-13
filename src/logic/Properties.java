@@ -31,6 +31,7 @@ public class Properties {
     final public double UNIVERSE_MAX_DIST = 10;
     final public double SHIP_ATTACK_RANGE = 0.1;
     final public int ATTACK_RANGE = 6;
+    final public int BUIDING_DELAY = 100;
     final public String images = "images/load.txt";
 
     private Properties() {

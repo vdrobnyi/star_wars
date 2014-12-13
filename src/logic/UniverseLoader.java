@@ -24,7 +24,7 @@ public class UniverseLoader {
             parser.parse(xmlData, new XMLParser());
 
         } catch (FileNotFoundException e) {
-            System.out.println("File with universe doesn`t exist!");
+            System.out.println("File with universe doesn`t exist!: " + fileName);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParserConfigurationException e) {
@@ -38,6 +38,7 @@ public class UniverseLoader {
 
     class XMLParser extends DefaultHandler {
         private Player currentPlayer;
+//        private Universe universe;
         @Override
         public void startElement(String uri, String localName, String qName,
                                  Attributes attributes) throws SAXException {
@@ -57,7 +58,7 @@ public class UniverseLoader {
                                             currentPlayer, IdGenerator.getNewId(), universe);
                 currentPlayer.addShip(s);
             } else if (qName.equals("planet")) {
-                Planet p = new Planet(Double.parseDouble(attributes.getValue("x")),
+                Planet p = new Planet(universe, Double.parseDouble(attributes.getValue("x")),
                                         Double.parseDouble(attributes.getValue("y")),
                                         currentPlayer, IdGenerator.getNewId(),
                                         Double.parseDouble(attributes.getValue("radius")));

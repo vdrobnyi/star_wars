@@ -84,8 +84,7 @@ public class RandomAI implements AIInterface {
                 a = new Action(Action.actions.STAY);
                 return a;
         }
-        a = new Action(Action.actions.MOVE_TO_ENEMY_SHIP);
-        a.target = getEnemyShips().get(0);
+        a = new Action(Action.actions.STAY);
         return a;
     }
 
@@ -100,6 +99,7 @@ public class RandomAI implements AIInterface {
                     s.move(action.target.getX(), action.target.getY());
                     break;
                 case STAY:
+                    s.stop();
                     break;
             }
         }

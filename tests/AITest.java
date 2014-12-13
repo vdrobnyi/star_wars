@@ -11,20 +11,17 @@ import static org.junit.Assert.*;
 
 import logic.Universe;
 import org.junit.Test;
+import logic.UniverseLoader;
 
 
 public class AITest {
 
     @Test
-    public void test() {
-        assertTrue("as".equals("as"));
-    }
-
-    @Test
     public void hasFinish() {
-        Universe u = new Universe(true);
+        UniverseLoader ul = new UniverseLoader();
+        Universe u = ul.loadUniverse("out.txt");
         SingletonAI ai = new SingletonAI(u, u.getPlayers().get(0));
-        for (int i = 0; i < 10000000; i++) {
+        for (int i = 0; i < 10000000 || u.isEndGame(); i++) {
             u.tick();
             ai.action();
             if (u.isEndGame())
@@ -35,14 +32,15 @@ public class AITest {
 
     @Test
     public void singletonWon() {
-        Universe u = new Universe(true);
+        UniverseLoader ul = new UniverseLoader();
+        Universe u = ul.loadUniverse("out.txt");
         SingletonAI ai = new SingletonAI(u, u.getPlayers().get(0));
         RandomAI rai = new RandomAI(u, u.getPlayers().get(1));
-        for (int i = 0; i < 10000000; i++) {
+        for (int i = 0; i < 10000000 || u.isEndGame(); i++) {
             u.tick();
             ai.action();
             rai.action();
-            if (u.isEndGame()){
+            if (u.isEndGame()) {
                 assertTrue(u.getWinner().equals(u.getPlayers().get(0)));
                 return;
             }
@@ -51,10 +49,11 @@ public class AITest {
 
     @Test
     public void teamWon() {
-        Universe u = new Universe(true);
+        UniverseLoader ul = new UniverseLoader();
+        Universe u = ul.loadUniverse("out.txt");
         TeamAI ai = new TeamAI(u, u.getPlayers().get(0));
         RandomAI rai = new RandomAI(u, u.getPlayers().get(1));
-        for (int i = 0; i < 10000000; i++) {
+        for (int i = 0; i < 10000000 || u.isEndGame(); i++) {
             u.tick();
             ai.action();
             rai.action();

@@ -44,9 +44,9 @@ public class Universe {
         players = new ArrayList<Player>();//new Player[2];
 
 
-        planets.add(new Planet(0, 0, IdGenerator.getNewId(), 1));
-        planets.add(new Planet(0.325, 0.745, IdGenerator.getNewId(), 2));
-        planets.add(new Planet(-0.225, 0.025, IdGenerator.getNewId(), 3));
+        planets.add(new Planet(this, 0, 0, IdGenerator.getNewId(), 1));
+        planets.add(new Planet(this, 0.325, 0.745, IdGenerator.getNewId(), 2));
+        planets.add(new Planet(this, -0.225, 0.025, IdGenerator.getNewId(), 3));
 
         players.add(new Player(1, this));
         players.add(new Player(2, this));
@@ -81,7 +81,7 @@ public class Universe {
         }
         i = 0;
         for (Planet p: u.getPlanets()) {
-            planets.add(new Planet(p.getX(), p.getY(), 1, p.getRadius()));
+            planets.add(new Planet(this, p.getX(), p.getY(), 1, p.getRadius()));
             int j = 0;
             while (j < u.planets.size() && !u.planets.get(j).equals(p.getMaster())) j++;
             if (j < u.planets.size()) {
@@ -161,7 +161,7 @@ public class Universe {
         for (Player p: players) {
             for (SpaceShip s: p.getShips()) {
                 double d = Universe.distance(x, y, s.getX(), s.getY());
-                if (d < dist) {
+                if (d < dist || Math.abs(d - dist) < 0.02) {
                     dist = d;
                     res = s;
                 }
@@ -205,6 +205,7 @@ public class Universe {
             if (p.getMaster() != null) {
                 p.getMaster().addGold(p.getGold());
                 p.getMaster().addIron(p.getIron());
+                p.makeShips();
             }
         }
         for (Player p : players) {

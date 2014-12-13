@@ -24,13 +24,17 @@ public class PlayerTest {
     @Test
     public void testGetNearestShipOne() {
         Universe u = new Universe();
-        Player p = u.getPlayers().get(0);
+        Player p = new Player(1, u);
+        u.addPlayer(p);
+        p.addShip(new SpaceShip(-0.8, -0.8, p, 1, u));
         assertTrue(p.getNearestShip(-0.8, -0.8).getMaster().equals(p));
     }
     @Test
     public void testGetNearestShipTwo() {
         Universe u = new Universe();
-        Player p = u.getPlayers().get(0);
+        Player p = new Player(1, u);
+        u.addPlayer(p);
+        p.addShip(new SpaceShip(-0.8, -0.8, p, 1, u));
         assertTrue(Math.abs(p.getNearestShip(-0.8, -0.8).getX() + 0.8) < 0.01);
     }
     @Test

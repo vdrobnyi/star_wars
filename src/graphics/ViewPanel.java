@@ -5,6 +5,7 @@ import logic.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Point2D;
 
 public class ViewPanel extends JPanel implements ActionListener {
     private Universe universe;
@@ -14,8 +15,13 @@ public class ViewPanel extends JPanel implements ActionListener {
     private Image shipImage;
     private Image planetImage;
     private Image universeImage;
+    private Image flagImage;
+    private Image red, green, yellow;
+    private Image[] planetImages;
     private double mouseX = 100;
     private double mouseY = 100;
+
+
 
     public ViewPanel(ViewFrame f) {
         ImageLoader loader = new ImageLoader(Properties.properties.images);
@@ -29,7 +35,15 @@ public class ViewPanel extends JPanel implements ActionListener {
         shipImage = loader.getImage("ship");
         planetImage = loader.getImage("planet");
         universeImage = loader.getImage("universe");
-
+        flagImage = loader.getImage("flag");
+        red = loader.getImage("red");
+        green = loader.getImage("green");
+        yellow = loader.getImage("yellow");
+        planetImages = new Image[100];
+        for (int i = 0; i < 100; i++) {
+            planetImages[i] = loader.getImage("planet" + i);
+        }
+        planetImage = planetImages[0];
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
@@ -46,7 +60,6 @@ public class ViewPanel extends JPanel implements ActionListener {
                 double eY = e.getY();
                 double x = (eX + frame.startX) / (Properties.properties.UNIVERSE_SIZE_X / 2.0) - 1;
                 double y = (eY + frame.startY) / (Properties.properties.UNIVERSE_SIZE_Y / 2.0) - 1;
-
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     frame.currentObject = universe.getObject(x, y);
                     if (!frame.currentPlayer.equals(frame.currentObject.getMaster())) {
@@ -62,8 +75,12 @@ public class ViewPanel extends JPanel implements ActionListener {
                         frame.getBarPanel().enableButtons(false);
                     }
                 }
-                else if (e.getButton() == MouseEvent.BUTTON3 && frame.currentObject != null && frame.currentObject instanceof SpaceShip)
-                    ((SpaceShip) frame.currentObject).move(x, y);
+                else {
+                    if (e.getButton() == MouseEvent.BUTTON3 && frame.currentObject != null && frame.currentObject instanceof SpaceShip)
+                        ((SpaceShip) frame.currentObject).move(x, y);
+                    else if (e.getButton() == MouseEvent.BUTTON3 && frame.currentObject != null && frame.currentObject instanceof Planet)
+                        ((Planet) frame.currentObject).setTarget(x, y);
+                }
             }
         });
 
@@ -75,12 +92,15 @@ public class ViewPanel extends JPanel implements ActionListener {
 
     }
 
+
     public void paint(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         moveScreen();
         g2.drawImage(universeImage,
-                0, 0, Properties.properties.PANEL_SIZE_X, Properties.properties.PANEL_SIZE_Y, this);
+                0, 0, (int)frame.width, (int)frame.height, this);
+
+
 
         Color[] c = new Color[]{Color.RED, Color.GREEN, Color.DARK_GRAY};
 
@@ -101,6 +121,14 @@ public class ViewPanel extends JPanel implements ActionListener {
                             (int)(p.getRadius() * 20),
                             (int)(p.getRadius() * 20));
             }
+        }
+        if (frame.currentObject instanceof Planet) {
+            double x = ((Planet) frame.currentObject).getTargetX();
+            double y = ((Planet) frame.currentObject).getTargetY();
+            g2.drawImage(flagImage,
+                    -frame.startX + (int)(x * Properties.properties.UNIVERSE_SIZE_X / 2 + Properties.properties.UNIVERSE_SIZE_X / 2 - 10),
+                    -frame.startY + (int)(y * Properties.properties.UNIVERSE_SIZE_Y / 2 + Properties.properties.UNIVERSE_SIZE_Y / 2 - 10),
+                    20, 20, this);
         }
         for (Player p : universe.getPlayers()) {
             for (SpaceShip s : p.getShips()) {
@@ -138,7 +166,16 @@ public class ViewPanel extends JPanel implements ActionListener {
             }
         }
         g2.setColor(Color.WHITE);
-        g2.fillRect(Properties.properties.PANEL_SIZE_X, 0, 1000, 1000);
+        g2.fillRect(frame.width, 0, 1000, 1000);
+
+        Point2D center = new Point2D.Float(50, 50);
+        float radius = 25;
+        float[] dist = {0.0f, 0.1f};
+        Color[] colors = {Color.RED, new Color(0, 0, 0, 0)};
+        RadialGradientPaint p =
+                new RadialGradientPaint(center, radius, dist, colors);
+        g2.setPaint (p);
+        g2.fillOval( 100, 100, 30, 30);
 
 
         g2.finalize();
@@ -157,33 +194,36 @@ public class ViewPanel extends JPanel implements ActionListener {
     private void tick() {
         universe.tick();
         tickNumber++;
+        planetImage = planetImages[tickNumber / 20 % 100];
     }
 
     private void moveScreen() {
         if (Math.abs(mouseX - 0) < Properties.properties.MOVE_SCREEN_AREA) {
             frame.startX -= 10;
         }
-        if (Math.abs(mouseX - Properties.properties.PANEL_SIZE_X) < Properties.properties.MOVE_SCREEN_AREA) {
+        if (Math.abs(mouseX - frame.width) < Properties.properties.MOVE_SCREEN_AREA) {
             frame.startX += 10;
         }
         if (Math.abs(mouseY - 0) < Properties.properties.MOVE_SCREEN_AREA) {
             frame.startY -= 10;
         }
-        if (Math.abs(mouseY - Properties.properties.PANEL_SIZE_Y) < Properties.properties.MOVE_SCREEN_AREA) {
+        if (frame.height - 100 - mouseY < Properties.properties.MOVE_SCREEN_AREA) {
             frame.startY += 10;
         }
         if (frame.startX < 0) frame.startX = 0;
-        if (frame.startX > Properties.properties.UNIVERSE_SIZE_X - Properties.properties.PANEL_SIZE_X)
-            frame.startX = Properties.properties.UNIVERSE_SIZE_X - Properties.properties.PANEL_SIZE_X;
+        if (frame.startX > Properties.properties.UNIVERSE_SIZE_X - frame.width)
+            frame.startX = Properties.properties.UNIVERSE_SIZE_X - frame.width;
         if (frame.startY < 0) frame.startY = 0;
-        if (frame.startY > Properties.properties.UNIVERSE_SIZE_Y - Properties.properties.PANEL_SIZE_Y)
-            frame.startY = Properties.properties.UNIVERSE_SIZE_Y - Properties.properties.PANEL_SIZE_Y;
+        if (frame.startY > Properties.properties.UNIVERSE_SIZE_Y - frame.height)
+            frame.startY = Properties.properties.UNIVERSE_SIZE_Y - frame.height;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (tickNumber % 50 != 0)
-            frame.ai.action();
+        if (tickNumber % 50 != 0) {
+            //frame.ai.action();
+            //frame.rai.action();
+        }
         if (universe.isEndGame())
             frame.end();
         tick();

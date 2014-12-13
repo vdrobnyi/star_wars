@@ -13,6 +13,8 @@ public class BarPanel extends JPanel {
     private JButton buttonIron;
     private JButton buttonAngar;
     private JButton buttonShip;
+    private Icon buttonShipIcon;
+    private Icon buttonShipIconTrue;
 
     private ViewFrame frame;
 
@@ -62,7 +64,9 @@ public class BarPanel extends JPanel {
                 buttonShipPush();
             }
         });
-        buttonShip.setIcon(new ImageIcon(loader.getImage("shipBuild")));
+        buttonShipIcon = new ImageIcon(loader.getImage("shipBuild"));
+        buttonShipIconTrue = new ImageIcon(loader.getImage("shipBuildTrue"));
+        buttonShip.setIcon(buttonShipIcon);
         buttonShip.setBorder(BorderFactory.createEmptyBorder());
         add(buttonShip);
         buttonShip.setVisible(true);
@@ -95,8 +99,16 @@ public class BarPanel extends JPanel {
     }
 
     private void buttonShipPush() {
+        boolean build = false;
         if (frame.currentObject instanceof Planet) {
-            ((Planet)frame.currentObject).makeShip();
+            build = !((Planet) frame.currentObject).isBuildShips();
+            ((Planet) frame.currentObject).
+                    startBuild(build);
+            if (build)
+                buttonShip.setIcon(buttonShipIconTrue);
+            else
+                buttonShip.setIcon(buttonShipIcon);
+            //((Planet)frame.currentObject).makeShip();
         }
     }
 

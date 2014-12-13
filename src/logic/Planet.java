@@ -6,15 +6,53 @@ import java.util.Iterator;
 public class Planet extends UniverseObject {
 
     private Player master;
+    private Universe universe;
     private final double radius;
     private final int id;
     private final double y;
     private final double x;
+    private double targetX;
+    private double targetY;
     private final int orbitSize;
     private ArrayList<SpaceShip> orbit = new ArrayList<SpaceShip>();
     private boolean hasAngar = false;
     private double goldPerSec = 0;
     private double ironPerSec = 0;
+    private boolean buildShips = false;
+    private int lastShip = 0;
+
+    public Planet(Universe u, double x, double y, int i, double rad) {
+        universe = u;
+        this.x = targetX = x;
+
+        this.y = targetY = y;
+        master = null;
+        id = i;
+        radius = rad;
+        orbitSize = (int)radius * 1;
+    }
+
+    public Planet(Universe u, double x, double y, Player p, int id, double rad) {
+        universe = u;
+        this.x = x;
+        this.y = y;
+        master = p;
+        this.id = id;
+        radius = rad;
+        orbitSize = (int)radius * 1;
+    }
+
+    public double getTargetX() {
+        return targetX;
+    }
+
+    public double getTargetY() {
+        return targetY;
+    }
+
+    public int getId() {
+        return id;
+    }
 
     public Player getMaster() {
         return master;
@@ -60,29 +98,6 @@ public class Planet extends UniverseObject {
         return this.y;
     }
 
-    public Planet(double x, double y, int i, double rad) {
-        this.x = x;
-        this.y = y;
-        master = null;
-        id = i;
-        radius = rad;
-        orbitSize = (int)radius * 1;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public Planet(double x, double y, Player p, int id, double rad) {
-        this.x = x;
-        this.y = y;
-        master = p;
-        this.id = id;
-        radius = rad;
-        orbitSize = (int)radius * 1;
-    }
-
-
     public void buildGoldFactory() {
         if (goldPerSec == 0 && master != null && master.addGold(-Properties.properties.GOLD_PER_BUIDING)) {
             goldPerSec = Properties.properties.GOLD_PER_SEC;
@@ -102,10 +117,35 @@ public class Planet extends UniverseObject {
         }
     }
 
-    public void makeShip() {
+    public boolean makeShip() {
         if (hasAngar && master != null && master.addGold(-Properties.properties.GOLD_PER_SHIP)
                 && master.addIron(-Properties.properties.IRON_PER_SHIP)) {
-            getMaster().addShip(new SpaceShip(getX(), getY(), getMaster(), IdGenerator.getNewId(), getMaster().getUniverse()));
+            SpaceShip s = new SpaceShip(getX(), getY(), getMaster(), IdGenerator.getNewId(), getMaster().getUniverse());
+            getMaster().addShip(s);
+            s.move(targetX, targetY);
+            return true;
+        }
+        return false;
+    }
+
+    public void startBuild(boolean start) {
+        buildShips = start;
+    }
+
+    public boolean isBuildShips() {
+        return buildShips;
+    }
+
+    public void setTarget(double x, double y) {
+        targetX = x;
+        targetY = y;
+    }
+
+    public void makeShips() {
+        if (buildShips &&
+                universe.getTickNumber() - lastShip > Properties.properties.BUIDING_DELAY) {
+            lastShip = universe.getTickNumber();
+            makeShip();
         }
     }
 

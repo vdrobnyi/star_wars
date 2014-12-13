@@ -2,6 +2,7 @@ package tests;
 
 import static org.junit.Assert.*;
 
+import logic.Planet;
 import org.junit.Test;
 
 import logic.Player;
@@ -13,7 +14,9 @@ public class UniverseTest {
     @Test
     public void testGetNearest() {
         Universe u = new Universe();
-        assertTrue(u.getNearestPlanet(0.05, -0.05).equals(u.getPlanets().get(0)));
+        Planet p = new Planet(0.05, -0.05, 1, 1);
+        u.addPlanet(p);
+        assertTrue(u.getNearestPlanet(0.05, -0.05).equals(p));
     }
     @Test
     public void testBullets() {
@@ -26,7 +29,10 @@ public class UniverseTest {
     @Test
     public void testMoveShip() {
         Universe u = new Universe();
-        SpaceShip s = u.getPlayers().get(0).getShips().get(0);
+        Player p = new Player(1, u);
+        SpaceShip s = new SpaceShip(0.8, 0.8, p, 1, u);
+        u.addPlayer(p);
+        p.addShip(s);
         s.move(0, 0);
         for (int i = 0; i < 2000; i++) {
             u.tick();
@@ -36,17 +42,25 @@ public class UniverseTest {
     @Test
     public void testPlanet() {
         Universe u = new Universe();
-        u.getPlayers().get(0).getShips().get(0).move(0, 0);
+        Player p = new Player(1, u);
+        SpaceShip s = new SpaceShip(0.8, 0.8, p, 1, u);
+        u.addPlayer(p);
+        p.addShip(s);
+        s.move(0, 0);
+        Planet pl = new Planet(0, 0, 1, 1);
+        u.addPlanet(pl);
         for (int i = 0; i < 1000; i++) {
             u.tick();
         }
-        assertTrue(u.getPlanet(0, 0).getMaster().equals(u.getPlayers().get(0)));
+        assertTrue(u.getPlanet(0, 0).getMaster().equals(p));
     }
     @Test
     public void testAttack() {
         Universe u = new Universe();
-        Player p1 = u.getPlayers().get(0);
-        Player p2 = u.getPlayers().get(0);
+        Player p1 = new Player(1, u);
+        Player p2 = new Player(2, u);
+        u.addPlayer(p1);
+        u.addPlayer(p2);
         for (int i = 0; i < 10; i++) {
             p1.addShip(new SpaceShip(0, 0, p1, i + 100, u));
         }

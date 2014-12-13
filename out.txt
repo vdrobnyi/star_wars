@@ -7,5 +7,7 @@
 		<ship x="0.5" y="-0.5"/>
 		<ship x="0.5" y="0.5"/>             	
 	</player>
-	<planet x="0" y="0" radius="2"/>
+	<planet x="0" y="0" radius="4"/>
+	<planet x="0.5" y="0" radius="2"/>
+	<planet x="0" y="0.5" radius="2"/>
 </universe>

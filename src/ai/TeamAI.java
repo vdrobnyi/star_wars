@@ -114,10 +114,10 @@ public class TeamAI implements AIInterface {
         }
         for (final SpaceShip s: player.getShips()) {
             ArrayList<Action> actions = getActionsToShip(s);
-            for (Action a: actions) {
+            /*for (Action a: actions) {
                 System.out.println(a.action + " " + a.target.getX() + " " + a.target.getY()
                         + " " + EvaluationFunctions.AR(universe, player, s, a));
-            }
+            }*/
             actions.sort(new Comparator<Action>() {
                 @Override
                 public int compare(Action o1, Action o2) {
@@ -128,13 +128,13 @@ public class TeamAI implements AIInterface {
                     return -1;
                 }
             });
-            System.out.println("________________________________________________");
+            /*System.out.println("________________________________________________");
             for (Action a: actions) {
                 System.out.println(a.action + " " + a.target.getX() + " " + a.target.getY()
                         + " " + EvaluationFunctions.AR(universe, player, s, a));
             }
             System.out.println("=================================================");
-
+*/
             map.put(s, actions.subList(0, k));
         }
         getMax(0, map);
