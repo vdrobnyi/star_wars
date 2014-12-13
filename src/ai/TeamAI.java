@@ -5,10 +5,7 @@ import logic.Player;
 import logic.SpaceShip;
 import logic.Universe;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class TeamAI implements AIInterface {
     private Universe universe;
@@ -118,16 +115,17 @@ public class TeamAI implements AIInterface {
                 System.out.println(a.action + " " + a.target.getX() + " " + a.target.getY()
                         + " " + EvaluationFunctions.AR(universe, player, s, a));
             }*/
-            actions.sort(new Comparator<Action>() {
-                @Override
-                public int compare(Action o1, Action o2) {
-                    if (EvaluationFunctions.AR(universe, player, s, o1) < EvaluationFunctions.AR(universe, player, s, o2))
-                        return 1;
-                    else if (EvaluationFunctions.AR(universe, player, s, o1) == EvaluationFunctions.AR(universe, player, s, o2))
-                        return 1;
-                    return -1;
-                }
-            });
+            Collections.sort(actions,
+                    new Comparator<Action>() {
+                        @Override
+                        public int compare(Action o1, Action o2) {
+                            if (EvaluationFunctions.AR(universe, player, s, o1) < EvaluationFunctions.AR(universe, player, s, o2))
+                                return 1;
+                            else if (EvaluationFunctions.AR(universe, player, s, o1) == EvaluationFunctions.AR(universe, player, s, o2))
+                                return 1;
+                            return -1;
+                        }
+                    });
             /*System.out.println("________________________________________________");
             for (Action a: actions) {
                 System.out.println(a.action + " " + a.target.getX() + " " + a.target.getY()
