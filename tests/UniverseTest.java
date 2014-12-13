@@ -14,7 +14,7 @@ public class UniverseTest {
     @Test
     public void testGetNearest() {
         Universe u = new Universe();
-        Planet p = new Planet(0.05, -0.05, 1, 1);
+        Planet p = new Planet(u, 0.05, -0.05, 1, 1);
         u.addPlanet(p);
         assertTrue(u.getNearestPlanet(0.05, -0.05).equals(p));
     }
@@ -47,7 +47,7 @@ public class UniverseTest {
         u.addPlayer(p);
         p.addShip(s);
         s.move(0, 0);
-        Planet pl = new Planet(0, 0, 1, 1);
+        Planet pl = new Planet(u, 0, 0, 1, 1);
         u.addPlanet(pl);
         for (int i = 0; i < 1000; i++) {
             u.tick();
