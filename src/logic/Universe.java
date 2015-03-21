@@ -1,6 +1,10 @@
 package logic;
 
+import events.Event;
+import events.EventListenerInterface;
+
 import java.util.*;
+
 
 public class Universe {
     private int tickNumber;
@@ -10,6 +14,8 @@ public class Universe {
     private boolean isEnd = false;
     private Random rand = new Random();
     private Player winner = null;
+
+    private List<EventListenerInterface> listeners = new ArrayList<EventListenerInterface>();
 
     public Universe() {
         tickNumber = 0;
@@ -37,6 +43,7 @@ public class Universe {
         */
     }
 
+
     public Universe(boolean a) {
         tickNumber = 0;
         planets = new ArrayList<Planet>();//new Planet[3];
@@ -48,19 +55,122 @@ public class Universe {
         planets.add(new Planet(this, 0.325, 0.745, IdGenerator.getNewId(), 2));
         planets.add(new Planet(this, -0.225, 0.025, IdGenerator.getNewId(), 3));
 
+        planets.add(new Planet(this, -0.325, -0.745, IdGenerator.getNewId(), 2));
+        planets.add(new Planet(this, 0.325, -0.125, IdGenerator.getNewId(), 3));
+
+        planets.add(new Planet(this, 0.325, 0.745, IdGenerator.getNewId(), 2));
+        planets.add(new Planet(this, -0.225, 0.025, IdGenerator.getNewId(), 3));
+
+        planets.add(new Planet(this, -0.7, 0.9, IdGenerator.getNewId(), 2));
+        planets.add(new Planet(this, 0.8, 0.8, IdGenerator.getNewId(), 3));
+
+
         players.add(new Player(1, this));
         players.add(new Player(2, this));
 
 
         players.get(0).addShip(new SpaceShip(-0.8, -0.8, players.get(0), IdGenerator.getNewId(), this));
-        players.get(0).addShip(new SpaceShip(0.8, -0.8, players.get(0), IdGenerator.getNewId(), this));
-        players.get(1).addShip(new SpaceShip(0.5, 0.8, players.get(1), IdGenerator.getNewId(), this));
-        players.get(1).addShip(new SpaceShip(0.0, 0.8, players.get(1), IdGenerator.getNewId(), this));
-        players.get(1).addShip(new SpaceShip(0.5, 0.8, players.get(1), IdGenerator.getNewId(), this));
-        players.get(1).addShip(new SpaceShip(0.0, 0.8, players.get(1), IdGenerator.getNewId(), this));
-        players.get(1).addShip(new SpaceShip(0.5, 0.8, players.get(1), IdGenerator.getNewId(), this));
-        players.get(1).addShip(new SpaceShip(0.0, 0.8, players.get(1), IdGenerator.getNewId(), this));
+        players.get(0).addShip(new SpaceShip(-0.76, -0.83, players.get(0), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(-0.73+0.5, -0.78+0.5, players.get(1), IdGenerator.getNewId(), this));
+        players.get(1).addShip(new SpaceShip(-0.82+0.5, -0.82+0.5, players.get(1), IdGenerator.getNewId(), this));
+        notify(new Event(Event.GameEventType.INFO));
+    }
 
+    public void addListener(EventListenerInterface l) {
+        listeners.add(l);
+    }
+
+    public synchronized void eventCapture(Event event) {
+        int ship_id;
+        int owner_id;
+        int planet_id;
+        Double x;
+        Double y;
+        Player p, p2;
+
+        switch (event.getType()) {
+            case LIST:
+                break;
+            case INFO:
+                break;
+            case JOIN_GAME:
+                break;
+            case CREATE_GAME:
+                break;
+            case END_GAME:
+                break;
+            case SHIP_MOVE:
+                ship_id = Integer.valueOf(event.getProperty("ship_id"));
+                x = Double.valueOf(event.getProperty("x"));
+                y = Double.valueOf(event.getProperty("y"));
+                SpaceShip sp = getShipById(ship_id);
+                sp.move(x, y);
+                break;
+            case SHIP_CREATE:
+                owner_id = Integer.valueOf(event.getProperty("owner_id"));
+                ship_id = Integer.valueOf(event.getProperty("ship_id"));
+                x = Double.valueOf(event.getProperty("x"));
+                y = Double.valueOf(event.getProperty("y"));
+                p = getPlayerById(owner_id);
+                SpaceShip s = new SpaceShip(x, y, p, ship_id, this);
+                p.addShip(s);
+                break;
+            case PLANET_CAPTURE:
+                planet_id = Integer.valueOf(event.getProperty("planet_id"));
+                owner_id = Integer.valueOf(event.getProperty("new_owner_id"));
+                Planet pl = getPlanetById(planet_id);
+                p = getPlayerById(owner_id);
+                pl.changeMaster(p);
+                break;
+            case ATTACK:
+                int attacker_id = Integer.valueOf(event.getProperty("attacker_id"));
+                int attacked_id = Integer.valueOf(event.getProperty("attacked_id"));
+                double damage = Double.valueOf(event.getProperty("damage"));
+                SpaceShip s1 = getShipById(attacker_id);
+                SpaceShip s2 = getShipById(attacked_id);
+                attack(s1, s2, damage);
+                break;
+            case SHIP_REMOVE:
+                ship_id = Integer.valueOf(event.getProperty("ship_id"));
+                SpaceShip ship = getShipById(ship_id);
+                ship.kill();
+                break;
+        }
+    }
+
+    public void notify(Event event) {
+        for (EventListenerInterface l : listeners) {
+            l.eventCapture(event);
+        }
+    }
+
+    public Player getPlayerById(int id) {
+        for (Player p : getPlayers()) {
+            if (p.getId() == id) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public Planet getPlanetById(int id) {
+        for (Planet p : getPlanets()) {
+            if (p.getId() == id) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public SpaceShip getShipById(int id) {
+        for (Player p : getPlayers()) {
+            for (SpaceShip s : p.getShips()) {
+                if (s.getId() == id) {
+                    return s;
+                }
+            }
+        }
+        return null;
     }
 
     public void addPlanet(Planet p) {
@@ -134,7 +244,14 @@ public class Universe {
     }
 
     public void attack(SpaceShip attacker, SpaceShip target) {
-        target.attacked(Properties.properties.SHIP_DAMAGE * (rand.nextInt(Properties.properties.ATTACK_RANGE)));
+        double damage = Properties.properties.SHIP_DAMAGE * (rand.nextInt(Properties.properties.ATTACK_RANGE));
+        notify(Event.getAttackEvent(attacker, target, damage));
+        target.attacked(damage);
+        makeBullet(attacker, target);
+    }
+
+    private void attack(SpaceShip attacker, SpaceShip target, double damage) {
+        target.attacked(damage);
         makeBullet(attacker, target);
     }
 

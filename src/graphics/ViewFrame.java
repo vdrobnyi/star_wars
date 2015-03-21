@@ -1,16 +1,16 @@
 package graphics;
 
 import ai.AIInterface;
-import ai.RandomAI;
-import ai.SingletonAI;
-import ai.TeamAI;
+import events.Event;
 import logic.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 
-public class ViewFrame extends JFrame {
+public class ViewFrame extends JFrame implements events.EventListenerInterface {
     public static Universe universe;
     public Player currentPlayer;
     public SpaceShip currentShip;
@@ -25,8 +25,11 @@ public class ViewFrame extends JFrame {
     private int tickNumber;
     private ViewPanel panel;
     private BarPanel bar;
+    private final JTextArea bar2 = new JTextArea(3, 62);
+    private final JScrollPane scroll = new JScrollPane(bar2);
 
-    public ViewFrame(Universe u) {
+
+    public ViewFrame(Universe u, Player current) {
         currentPlayerNum = 0;
         currentShipNum = 0;
         tickNumber = 0;
@@ -34,32 +37,62 @@ public class ViewFrame extends JFrame {
         startX = 0;
         startY = 0;
         //ai = new SingletonAI(universe, u.getPlayers().get(0));
-        //rai = new RandomAI(universe, u.getPlayers().get(1));
+        //rai = new SingletonAI(universe, u.getPlayers().get(1));
 
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        width = gd.getDisplayMode().getWidth();
-        height = gd.getDisplayMode().getHeight() - 150;
+        //GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        width = 500;//gd.getDisplayMode().getWidth();
+        height = 500;//gd.getDisplayMode().getHeight() - 150;
 
+        universe.addListener(this);
 
         System.out.println(width + " " + height);
         panel = new ViewPanel(this);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         bar = new BarPanel(this);
         bar.enableButtons(false);
-        panel.setPreferredSize(new Dimension(width, height));
-        bar.setPreferredSize(new Dimension(Properties.properties.BAR_SIZE_X + 1, Properties.properties.BAR_SIZE_Y + 1));
-        add(panel, BorderLayout.NORTH);
+        //panel.setPreferredSize(new Dimension(width, height - 100));
+        //bar.setPreferredSize(new Dimension(width, 100));//(new Dimension(Properties.properties.BAR_SIZE_X + 1, Properties.properties.BAR_SIZE_Y + 1));
+        //add(panel, BorderLayout.NORTH);
+        //add(bar, BorderLayout.SOUTH);
+
+
+        bar2.setLineWrap(true);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll.setSize(new Dimension(width, 100));
+
+        setBounds(0, 0, width, height);
+        panel.setBounds(0, 100, width, height - 200);
+        bar.setBounds(0, height - 199, width, 100);
+        //bar2.setBounds(0, 0, width, 99);
+        add(panel);
         add(bar, BorderLayout.SOUTH);
-
-
-        setFocusable(true);
-        setUndecorated(true);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        add(scroll, BorderLayout.NORTH);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        //setFocusable(true);
+        //setUndecorated(true);
+        //setExtendedState(JFrame.MAXIMIZED_BOTH);
         setVisible(true);
 
+        bar2.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
 
-        currentPlayer = universe.getPlayers().get(currentPlayerNum);
+                System.out.println(e.getKeyCode() + "b");
+                if (e.getKeyCode() == 10) {
+                    Event evt = events.Event.fromString(bar2.getText());
+                    universe.notify(evt);
+                    universe.eventCapture(evt);
+                }
+            }
+        });
+
+        currentPlayer = current;//universe.getPlayers().get(currentPlayerNum);
         currentObject = currentPlayer.getShips().get(currentShipNum);
+    }
+
+    public void eventCapture(events.Event evt) {
+        //System.out.println(evt);
+        addText(evt.toString());
     }
 
     public void end() {
@@ -77,5 +110,10 @@ public class ViewFrame extends JFrame {
 
     public SpaceShip getCurrentShip() {
         return currentShip;
+    }
+
+    public void addText(String s) {
+        bar2.append(s + "\n");
+        bar2.setCaretPosition(bar2.getDocument().getLength());
     }
 }

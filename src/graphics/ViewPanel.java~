@@ -30,7 +30,7 @@ public class ViewPanel extends JPanel implements ActionListener {
         universe = ViewFrame.universe;
         frame = f;
         timer = new Timer(50, this);
-        timer.setInitialDelay(50);
+        timer.setInitialDelay(0);
         timer.start();
 
         shipImage = loader.getImage("ship");
@@ -86,13 +86,17 @@ public class ViewPanel extends JPanel implements ActionListener {
             }
         });
 
-
+        frame.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+           }
+        });
 
     }
 
 
     public void paint(Graphics g) {
-        super.paintComponent(g);
+        //super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         moveScreen();
         g2.drawImage(universeImage,
@@ -169,8 +173,18 @@ public class ViewPanel extends JPanel implements ActionListener {
             }
         }
         g2.setColor(Color.WHITE);
-        //g2.fillRect(frame.width, 0, 1000, 1000);
-        g2.finalize();
+        g2.fillRect(frame.width, 0, 1000, 1000);
+
+        Point2D center = new Point2D.Float(50, 50);
+        float radius = 25;
+        float[] dist = {0.0f, 0.1f};
+        Color[] colors = {Color.RED, new Color(0, 0, 0, 0)};
+        RadialGradientPaint p =
+                new RadialGradientPaint(center, radius, dist, colors);
+        g2.setPaint (p);
+        g2.fillOval( 100, 100, 30, 30);
+
+        //g2.finalize();
     }
 
     private void drawCurrent(Graphics2D g2) {
@@ -219,6 +233,7 @@ public class ViewPanel extends JPanel implements ActionListener {
         if (universe.isEndGame())
             frame.end();
         tick();
-        repaint();
+        if (tickNumber % 1 == 0)
+            repaint();
     }
 }

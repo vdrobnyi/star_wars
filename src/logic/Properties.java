@@ -25,8 +25,8 @@ public class Properties {
     final public int PANEL_SIZE_Y = 600;
     final public int BAR_SIZE_X = 500;
     final public int BAR_SIZE_Y = 100;
-    final public int UNIVERSE_SIZE_X = 1000;
-    final public int UNIVERSE_SIZE_Y = 1000;
+    final public int UNIVERSE_SIZE_X = 1500;
+    final public int UNIVERSE_SIZE_Y = 1500;
     final public int MOVE_SCREEN_AREA = 50;
     final public double UNIVERSE_MAX_DIST = 10;
     final public double SHIP_ATTACK_RANGE = 0.1;

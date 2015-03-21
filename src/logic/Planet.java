@@ -1,5 +1,7 @@
 package logic;
 
+import events.Event;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -83,6 +85,9 @@ public class Planet extends UniverseObject {
     }
 
     public void changeMaster(Player new_master) {
+        if (!new_master.equals(master)) {
+            getUniverse().notify(Event.getPlanetCaptureEvent(this, new_master));
+        }
         master = new_master;
     }
 
@@ -101,12 +106,14 @@ public class Planet extends UniverseObject {
     public void buildGoldFactory() {
         if (goldPerSec == 0 && master != null && master.addGold(-Properties.properties.GOLD_PER_BUIDING)) {
             goldPerSec = Properties.properties.GOLD_PER_SEC;
+            getUniverse().notify(Event.getGoldBuildEvent(this));
         }
     }
 
     public void buildIronFactory() {
         if (ironPerSec == 0 && master != null && master.addGold(-Properties.properties.GOLD_PER_BUIDING)) {
             ironPerSec = Properties.properties.IRON_PER_SEC;
+            getUniverse().notify(Event.getIronBuildEvent(this));
         }
     }
 
@@ -114,6 +121,7 @@ public class Planet extends UniverseObject {
         if (hasAngar == false && master != null && master.addGold(-Properties.properties.GOLD_PER_ANGAR)
                 && master.addIron(-Properties.properties.IRON_PER_ANGAR)) {
             hasAngar = true;
+            getUniverse().notify(Event.getAngarBuildEvent(this));
         }
     }
 
@@ -122,6 +130,8 @@ public class Planet extends UniverseObject {
                 && master.addIron(-Properties.properties.IRON_PER_SHIP)) {
             SpaceShip s = new SpaceShip(getX(), getY(), getMaster(), IdGenerator.getNewId(), getMaster().getUniverse());
             getMaster().addShip(s);
+
+            getUniverse().notify(Event.getShipCreateEvent(s, getX(), getY()));
             s.move(targetX, targetY);
             return true;
         }
@@ -169,5 +179,9 @@ public class Planet extends UniverseObject {
             }
         }
         return true;
+    }
+
+    public Universe getUniverse() {
+        return universe;
     }
 }

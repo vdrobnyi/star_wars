@@ -1,13 +1,20 @@
 package logic;
 
+import events.Event;
 import graphics.ViewFrame;
 
 public class SpaceShip extends UniverseObject {
 
+    public int getId() {
+        return id;
+    }
+
+
+
     enum State {
         MOVE,
-        STAY
-    };
+        STAY;
+    }
     private Player master;
     private double targetX, targetY;
     private double x, y;
@@ -19,10 +26,7 @@ public class SpaceShip extends UniverseObject {
     private State state;
     private int lastAttack = 0;
     private Universe universe;
-
     private double live = Properties.properties.SHIP_LIVE;
-
-
 
     public SpaceShip(double x, double y, Player master, int i, Universe u) {
         this.x = x;
@@ -32,6 +36,8 @@ public class SpaceShip extends UniverseObject {
         state = State.STAY;
         id = i;
     }
+
+
 
     public double getLive() { return live; }
 
@@ -45,6 +51,7 @@ public class SpaceShip extends UniverseObject {
             p.leavePlanet(this);
         }
         getMaster().removeShip(this);
+        getUniverse().notify(Event.getShipRemoveEvent(this));
     }
 
     public boolean isAlive() {
@@ -55,6 +62,7 @@ public class SpaceShip extends UniverseObject {
         state = State.MOVE;
         targetX = x;
         targetY = y;
+        getUniverse().notify(Event.getMoveEvent(this, x, y));
     }
 
     public void stop() {
@@ -121,8 +129,9 @@ public class SpaceShip extends UniverseObject {
 
     public void attacked(double damage) {
         live -= damage;
-        if (live <= 0)
+        if (live <= 0) {
             kill();
+        }
     }
 
     public double dist(UniverseObject p) {
@@ -135,5 +144,9 @@ public class SpaceShip extends UniverseObject {
 
     public double getY() {
         return this.y;
+    }
+
+    public Universe getUniverse() {
+        return universe;
     }
 }

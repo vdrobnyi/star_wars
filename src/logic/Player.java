@@ -1,5 +1,7 @@
 package logic;
 
+import events.Event;
+
 import java.util.ArrayList;
 
 public class Player {
@@ -36,6 +38,14 @@ public class Player {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Player)) {
+            return false;
+        }
+        return id == ((Player) o).getId();
+    }
+
     public Universe getUniverse() {
         return universe;
     }
@@ -55,6 +65,14 @@ public class Player {
 
     public void addShip(SpaceShip s) {
         ships.add(s);
+        /*
+        Event event = new Event(Event.GameEventType.SHIP_CREATE);
+        event.setProperty("owner_id", Integer.valueOf(id).toString());
+        event.setProperty("new_ship_id", Integer.valueOf(s.getId()).toString());
+        event.setProperty("x", Double.valueOf(s.getX()).toString());
+        event.setProperty("y", Double.valueOf(s.getY()).toString());
+        getUniverse().notify(event);
+        */
     }
 
     public boolean addGold(double g) {
@@ -81,4 +99,7 @@ public class Player {
         return ships;
     }
 
+    public int getId() {
+        return id;
+    }
 }
