@@ -8,41 +8,35 @@ import java.nio.charset.StandardCharsets;
 
 public class UDPClient {
     public static Integer port = 11115;
+    public static String address;
     public static void main(String[] args) throws Exception {
         System.out.print("Input your port: ");
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
+
         port = Integer.valueOf(br.readLine());
-        MessageSenderC producer = new MessageSenderC(port);
+        System.out.print("Input server address: ");
+        address = br.readLine();
+        MessageSenderC producer = new MessageSenderC(port, address);
         MessageGetterC consumer = new MessageGetterC(port);
 
 
         new Thread(producer).start();
         new Thread(consumer).start();
     }
-
-    private static DatagramPacket encodePacket(String text) {
-        byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
-        return new DatagramPacket(bytes, bytes.length);
-    }
-
-    private static String decodePacket(DatagramPacket packet) {
-        return new String(
-                packet.getData(),
-                packet.getOffset(),
-                packet.getOffset() + packet.getLength(),
-                StandardCharsets.UTF_8);
-    }
 }
 
 class MessageSenderC implements Runnable {
+    Integer port;
+    String address;
+    MessageSenderC(Integer p, String addr) {
+        port = p;
+        address = addr;
+    }
+
     private static DatagramPacket encodePacket(String text) {
         byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
         return new DatagramPacket(bytes, bytes.length);
-    }
-    Integer port;
-    MessageSenderC(Integer p) {
-        port = p;
     }
     public void run() {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -59,7 +53,7 @@ class MessageSenderC implements Runnable {
             try {
                 DatagramSocket socket = new DatagramSocket();
                 DatagramPacket packet = encodePacket(msg);
-                packet.setSocketAddress(new InetSocketAddress(/*"5.175.147.48", */11111));
+                packet.setSocketAddress(new InetSocketAddress(address, 11111));
                 socket.send(packet);
             } catch (Exception e) {
                 e.printStackTrace();

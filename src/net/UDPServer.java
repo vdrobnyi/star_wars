@@ -68,9 +68,12 @@ class MessageSenderS implements Runnable {
             try {
                 DatagramSocket socket = new DatagramSocket();
                 DatagramPacket packet = encodePacket(msg.substring(msg.indexOf(":") + 1));
+                int senderPort = Integer.parseInt(msg.substring(0, msg.indexOf(":")));
                 for (Pair<InetAddress, Integer> a: addresses) {
                     //if (p.equals(Integer.valueOf(msg.substring(0, msg.indexOf(":")))))
                     //    continue;
+                    if (a.getValue().equals(senderPort))
+                        continue;
                     packet.setSocketAddress(new InetSocketAddress(a.getKey(), a.getValue()));
                     socket.send(packet);
                 }
@@ -99,7 +102,6 @@ class MessageGetterS implements Runnable {
     }
     public void run() {
         while (true) {
-
             try (DatagramSocket socket = new DatagramSocket(11111)) {
                 byte[] buf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
