@@ -16,6 +16,8 @@ public class Main {
         UniverseLoader ul = new UniverseLoader();
         System.out.println("Start game");
         Universe u = new Universe(true);//ul.loadUniverse("out.txt");
+
+        //EL: Create StartGameWizard class
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         String server = "localhost";

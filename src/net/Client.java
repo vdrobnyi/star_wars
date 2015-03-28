@@ -9,7 +9,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
 
-
+//EL: лучше бы имя содержало слово Sender, например, ClientSender
 public class Client implements EventListenerInterface {
     private Universe universe;
     private int serverPort;
@@ -49,6 +49,7 @@ public class Client implements EventListenerInterface {
     }
 }
 
+//EL: лучше бы имя содержало слово Receiver, например, ClientReceiver
 class MessageGetterC implements Runnable {
     Integer port;
     Universe universe;

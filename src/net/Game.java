@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Game {
+    //EL: private fields
     public List<Pair<InetAddress, Integer>> players = new LinkedList<>();
     public Boolean isStarted = false;
 

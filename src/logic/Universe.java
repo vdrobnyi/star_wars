@@ -97,7 +97,7 @@ public class Universe {
         Double x;
         Double y;
         Player p, p2;
-
+        //EL: плохо в модели знать детали про View
         switch (event.getType()) {
             case MESSAGE:
                 String out = "";
@@ -127,6 +127,7 @@ public class Universe {
                 break;
             case SHIP_MOVE:
                 ship_id = Integer.valueOf(event.getProperty("ship_id"));
+                //EL: event.getDouble("x")
                 x = Double.valueOf(event.getProperty("x"));
                 y = Double.valueOf(event.getProperty("y"));
                 SpaceShip sp = getShipById(ship_id);
