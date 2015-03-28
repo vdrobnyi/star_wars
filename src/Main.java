@@ -1,4 +1,5 @@
 
+import events.Event;
 import graphics.ViewFrame;
 import logic.Player;
 import logic.Universe;
@@ -31,7 +32,16 @@ public class Main {
         }
 
         Client client = new Client(clientPort, u, server, serverPort);
-        Player current = u.getPlayers().get(0);
+        Player current = u.getPlayers().get(1);
         ViewFrame v = new ViewFrame(u, current);
+        while (!v.isVisible()) {
+            String msg = null;
+            try {
+                msg = br.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            client.eventCapture(Event.fromString(msg));
+        }
     }
 }

@@ -64,15 +64,13 @@ public class Player {
     }
 
     public void addShip(SpaceShip s) {
+        addShip(s, true);
+    }
+
+    public void addShip(SpaceShip s, boolean notify) {
         ships.add(s);
-        /*
-        Event event = new Event(Event.GameEventType.SHIP_CREATE);
-        event.setProperty("owner_id", Integer.valueOf(id).toString());
-        event.setProperty("new_ship_id", Integer.valueOf(s.getId()).toString());
-        event.setProperty("x", Double.valueOf(s.getX()).toString());
-        event.setProperty("y", Double.valueOf(s.getY()).toString());
-        getUniverse().notify(event);
-        */
+        if (notify)
+            getUniverse().notify(Event.getShipCreateEvent(s, s.getX(), s.getY()), null);
     }
 
     public boolean addGold(double g) {

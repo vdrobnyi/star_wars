@@ -9,12 +9,25 @@ import java.util.Map;
 
 public class Event {
     public static enum GameEventType {
-        UNKNOWN,
+        MESSAGE,
         LIST,
+        /*
+         * game_name
+         */
         INFO,
+        /*
+         * game_name
+         */
         JOIN_GAME,
+        /*
+         * game_name
+         */
         CREATE_GAME,
+        /*
+         * game_name
+         */
         END_GAME,
+        START_GAME,
         /*
          * ship_id
          * x
@@ -62,7 +75,11 @@ public class Event {
 
     public Event(GameEventType t) {
         type = t;
-        props = new HashMap<String, String>();
+        props = new HashMap<>();
+    }
+
+    public Map<String, String> getProps() {
+        return props;
     }
 
     public void setProperty(String key, String value) {
@@ -137,34 +154,56 @@ public class Event {
     }
 
     public static Event fromString(String s) {
-        Event event;
+        Event event = new Event(GameEventType.LIST);
         String[] tokens = s.split(" ");
-        if (tokens[0].substring(tokens[0].indexOf(":") + 1)
-                .equals("SHIP_MOVE")) {
-            event = new Event(GameEventType.SHIP_MOVE);
-        } else if (tokens[0].substring(tokens[0].indexOf(":") + 1)
-                .equals("SHIP_CREATE")) {
-            event = new Event(GameEventType.SHIP_CREATE);
-        } else if (tokens[0].substring(tokens[0].indexOf(":") + 1)
-                .equals("PLANET_CAPTURE")) {
-            event = new Event(GameEventType.PLANET_CAPTURE);
-        } else if (tokens[0].substring(tokens[0].indexOf(":") + 1)
-                .equals("ATTACK")) {
-            event = new Event(GameEventType.ATTACK);
-        } else if (tokens[0].substring(tokens[0].indexOf(":") + 1)
-                .equals("SHIP_REMOVE")) {
-            event = new Event(GameEventType.SHIP_REMOVE);
-        } else if (tokens[0].substring(tokens[0].indexOf(":") + 1)
-                .equals("GOLD_BUILD")) {
-            event = new Event(GameEventType.GOLD_BUILD);
-        } else if (tokens[0].substring(tokens[0].indexOf(":") + 1)
-                .equals("IRON_BUILD")) {
-            event = new Event(GameEventType.IRON_BUILD);
-        } else if (tokens[0].substring(tokens[0].indexOf(":") + 1)
-                .equals("ANGAR_BUILD")) {
-            event = new Event(GameEventType.ANGAR_BUILD);
-        } else {
-            event = new Event(GameEventType.UNKNOWN);
+        switch (tokens[0].substring(tokens[0].indexOf(":") + 1)) {
+            case "SHIP_MOVE":
+                event.type = GameEventType.SHIP_MOVE;
+                break;
+            case "SHIP_CREATE":
+                event.type = GameEventType.SHIP_CREATE;
+                break;
+            case "PLANET_CAPTURE":
+                event.type = GameEventType.PLANET_CAPTURE;
+                break;
+            case "ATTACK":
+                event.type = GameEventType.ATTACK;
+                break;
+            case "SHIP_REMOVE":
+                event.type = GameEventType.SHIP_REMOVE;
+                break;
+            case "GOLD_BUILD":
+                event.type = GameEventType.GOLD_BUILD;
+                break;
+            case "IRON_BUILD":
+                event.type = GameEventType.IRON_BUILD;
+                break;
+            case "ANGAR_BUILD":
+                event.type = GameEventType.ANGAR_BUILD;
+                break;
+            case "LIST":
+                event.type = GameEventType.LIST;
+                break;
+            case "INFO":
+                event.type = GameEventType.INFO;
+                break;
+            case "JOIN_GAME":
+                event.type = GameEventType.JOIN_GAME;
+                break;
+            case "START_GAME":
+                event.type = GameEventType.START_GAME;
+                break;
+            case "CREATE_GAME":
+                event.type = GameEventType.CREATE_GAME;
+                break;
+            case "END_GAME":
+                event.type = GameEventType.END_GAME;
+                break;
+            case "MESSAGE":
+                event.type = GameEventType.MESSAGE;
+                break;
+            default:
+                System.err.println("Unknown event: " + s);
         }
 
         for (String token : tokens) {
@@ -182,6 +221,9 @@ public class Event {
     public String toString() {
         String result = "";
         switch (type) {
+            case MESSAGE:
+                result += "Type:MESSAGE ";
+                break;
             case SHIP_MOVE:
                 result += "Type:SHIP_MOVE ";
                 break;
@@ -203,8 +245,23 @@ public class Event {
             case IRON_BUILD:
                 result += "Type:IRON_BUILD ";
                 break;
-            case ANGAR_BUILD:
-                result += "Type:ANGAR_BUILD ";
+            case LIST:
+                result += "Type:LIST ";
+                break;
+            case INFO:
+                result += "Type:INFO ";
+                break;
+            case CREATE_GAME:
+                result += "Type:CREATE_GAME ";
+                break;
+            case END_GAME:
+                result += "Type:END_GAME ";
+                break;
+            case START_GAME:
+                result += "Type:START_GAME ";
+                break;
+            case JOIN_GAME:
+                result += "Type:JOIN_GAME ";
                 break;
             default:
                 result += "Type:UNKNOWN ";

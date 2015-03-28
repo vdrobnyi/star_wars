@@ -47,15 +47,6 @@ public class Client implements EventListenerInterface {
         byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
         return new DatagramPacket(bytes, bytes.length);
     }
-
-    private static String decodePacket(DatagramPacket packet) {
-        return new String(
-                packet.getData(),
-                packet.getOffset(),
-                packet.getOffset() + packet.getLength(),
-                StandardCharsets.UTF_8);
-    }
-
 }
 
 class MessageGetterC implements Runnable {

@@ -2,9 +2,11 @@ package graphics;
 
 import ai.AIInterface;
 import events.Event;
+import events.EventListenerInterface;
 import logic.*;
 
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -71,7 +73,7 @@ public class ViewFrame extends JFrame implements events.EventListenerInterface {
         //setFocusable(true);
         //setUndecorated(true);
         //setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setVisible(true);
+        //setVisible(true);
 
         bar2.addKeyListener(new KeyAdapter() {
             @Override
@@ -80,13 +82,18 @@ public class ViewFrame extends JFrame implements events.EventListenerInterface {
                 System.out.println(e.getKeyCode() + "b");
                 if (e.getKeyCode() == 10) {
                     Event evt = events.Event.fromString(bar2.getText());
-                    universe.notify(evt);
+                    universe.notify(evt, null);
                     universe.eventCapture(evt);
                 }
             }
         });
 
         currentPlayer = current;//universe.getPlayers().get(currentPlayerNum);
+        currentObject = currentPlayer.getShips().get(currentShipNum);
+    }
+
+    public void setCurrentPlayer(Player current) {
+        currentPlayer = current;
         currentObject = currentPlayer.getShips().get(currentShipNum);
     }
 

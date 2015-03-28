@@ -2,6 +2,7 @@ package logic;
 
 import events.Event;
 import events.EventListenerInterface;
+import graphics.ViewFrame;
 
 import java.util.*;
 
@@ -73,11 +74,20 @@ public class Universe {
         players.get(0).addShip(new SpaceShip(-0.76, -0.83, players.get(0), IdGenerator.getNewId(), this));
         players.get(1).addShip(new SpaceShip(-0.73+0.5, -0.78+0.5, players.get(1), IdGenerator.getNewId(), this));
         players.get(1).addShip(new SpaceShip(-0.82+0.5, -0.82+0.5, players.get(1), IdGenerator.getNewId(), this));
-        notify(new Event(Event.GameEventType.INFO));
+        notify(new Event(Event.GameEventType.INFO), null);
     }
 
     public void addListener(EventListenerInterface l) {
         listeners.add(l);
+    }
+
+    private ViewFrame getViewFrame() {
+        for (EventListenerInterface l : listeners) {
+            if (l instanceof ViewFrame) {
+                return (ViewFrame) l;
+            }
+        }
+        return null;
     }
 
     public synchronized void eventCapture(Event event) {
@@ -89,6 +99,18 @@ public class Universe {
         Player p, p2;
 
         switch (event.getType()) {
+            case MESSAGE:
+                String out = "";
+                for (Map.Entry<String, String> e : event.getProps().entrySet()) {
+                    out += e.getKey() + ":" + e.getValue() + "  ";
+                }
+                System.out.println(out);
+                if (event.getProperty("pos") != null) {
+                    getViewFrame().setCurrentPlayer(
+                            getPlayerById(
+                                    Integer.parseInt(event.getProperty("pos")) - 1 ));
+                }
+                break;
             case LIST:
                 break;
             case INFO:
@@ -96,15 +118,19 @@ public class Universe {
             case JOIN_GAME:
                 break;
             case CREATE_GAME:
+                getViewFrame().setCurrentPlayer(getPlayerById(0));
                 break;
             case END_GAME:
+                break;
+            case START_GAME:
+                getViewFrame().setVisible(true);
                 break;
             case SHIP_MOVE:
                 ship_id = Integer.valueOf(event.getProperty("ship_id"));
                 x = Double.valueOf(event.getProperty("x"));
                 y = Double.valueOf(event.getProperty("y"));
                 SpaceShip sp = getShipById(ship_id);
-                sp.move(x, y);
+                sp.move(x, y, false);
                 break;
             case SHIP_CREATE:
                 owner_id = Integer.valueOf(event.getProperty("owner_id"));
@@ -113,7 +139,7 @@ public class Universe {
                 y = Double.valueOf(event.getProperty("y"));
                 p = getPlayerById(owner_id);
                 SpaceShip s = new SpaceShip(x, y, p, ship_id, this);
-                p.addShip(s);
+                p.addShip(s, false);
                 break;
             case PLANET_CAPTURE:
                 planet_id = Integer.valueOf(event.getProperty("planet_id"));
@@ -135,11 +161,26 @@ public class Universe {
                 SpaceShip ship = getShipById(ship_id);
                 ship.kill();
                 break;
+            case GOLD_BUILD:
+                planet_id = Integer.valueOf(event.getProperty("planet_id"));
+                pl = getPlanetById(planet_id);
+                pl.buildGoldFactory(false);
+            case IRON_BUILD:
+                planet_id = Integer.valueOf(event.getProperty("planet_id"));
+                pl = getPlanetById(planet_id);
+                pl.buildIronFactory(false);
+            case ANGAR_BUILD:
+                planet_id = Integer.valueOf(event.getProperty("planet_id"));
+                pl = getPlanetById(planet_id);
+                pl.buildAngar(false);
         }
     }
 
-    public void notify(Event event) {
+
+
+    public void notify(Event event, EventListenerInterface from) {
         for (EventListenerInterface l : listeners) {
+            if (l.equals(from)) continue;
             l.eventCapture(event);
         }
     }
@@ -245,7 +286,7 @@ public class Universe {
 
     public void attack(SpaceShip attacker, SpaceShip target) {
         double damage = Properties.properties.SHIP_DAMAGE * (rand.nextInt(Properties.properties.ATTACK_RANGE));
-        notify(Event.getAttackEvent(attacker, target, damage));
+        notify(Event.getAttackEvent(attacker, target, damage), null);
         target.attacked(damage);
         makeBullet(attacker, target);
     }

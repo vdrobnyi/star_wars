@@ -86,7 +86,7 @@ public class Planet extends UniverseObject {
 
     public void changeMaster(Player new_master) {
         if (!new_master.equals(master)) {
-            getUniverse().notify(Event.getPlanetCaptureEvent(this, new_master));
+            getUniverse().notify(Event.getPlanetCaptureEvent(this, new_master), null);
         }
         master = new_master;
     }
@@ -104,24 +104,39 @@ public class Planet extends UniverseObject {
     }
 
     public void buildGoldFactory() {
+        buildGoldFactory(true);
+    }
+
+    public void buildGoldFactory(boolean notify) {
         if (goldPerSec == 0 && master != null && master.addGold(-Properties.properties.GOLD_PER_BUIDING)) {
             goldPerSec = Properties.properties.GOLD_PER_SEC;
-            getUniverse().notify(Event.getGoldBuildEvent(this));
+            if (notify)
+                getUniverse().notify(Event.getGoldBuildEvent(this), null);
         }
     }
 
     public void buildIronFactory() {
+        buildIronFactory(true);
+    }
+
+    public void buildIronFactory(boolean notify) {
         if (ironPerSec == 0 && master != null && master.addGold(-Properties.properties.GOLD_PER_BUIDING)) {
             ironPerSec = Properties.properties.IRON_PER_SEC;
-            getUniverse().notify(Event.getIronBuildEvent(this));
+            if (notify)
+                getUniverse().notify(Event.getIronBuildEvent(this), null);
         }
     }
 
     public void buildAngar() {
+        buildAngar(true);
+    }
+
+    public void buildAngar(boolean notify) {
         if (hasAngar == false && master != null && master.addGold(-Properties.properties.GOLD_PER_ANGAR)
                 && master.addIron(-Properties.properties.IRON_PER_ANGAR)) {
             hasAngar = true;
-            getUniverse().notify(Event.getAngarBuildEvent(this));
+            if (notify)
+                getUniverse().notify(Event.getAngarBuildEvent(this), null);
         }
     }
 
@@ -131,7 +146,6 @@ public class Planet extends UniverseObject {
             SpaceShip s = new SpaceShip(getX(), getY(), getMaster(), IdGenerator.getNewId(), getMaster().getUniverse());
             getMaster().addShip(s);
 
-            getUniverse().notify(Event.getShipCreateEvent(s, getX(), getY()));
             s.move(targetX, targetY);
             return true;
         }
