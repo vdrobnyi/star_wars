@@ -73,6 +73,8 @@ public class Event {
     private GameEventType type;
     private Map<String, String> props;
 
+    private EventListenerInterface from = null;
+
     public Event(GameEventType t) {
         type = t;
         props = new HashMap<>();
@@ -91,6 +93,14 @@ public class Event {
             return props.get(key);
         }
         return null;
+    }
+
+    public EventListenerInterface getFrom() {
+        return from;
+    }
+
+    public void setFrom(EventListenerInterface from) {
+        this.from = from;
     }
 
     public GameEventType getType() {
@@ -215,6 +225,16 @@ public class Event {
             event.setProperty(key, value);
         }
         return event;
+    }
+
+    public Double getDouble(String prop) {
+        Double res = Double.valueOf(props.get(prop));
+        return res;
+    }
+
+    public Integer getInteger(String prop) {
+        Integer res = Integer.valueOf(props.get(prop));
+        return res;
     }
 
     @Override

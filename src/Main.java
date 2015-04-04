@@ -4,7 +4,8 @@ import graphics.ViewFrame;
 import logic.Player;
 import logic.Universe;
 import logic.UniverseLoader;
-import net.Client;
+import net.ClientSender;
+import wizard.Wizard;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,32 +17,34 @@ public class Main {
         UniverseLoader ul = new UniverseLoader();
         System.out.println("Start game");
         Universe u = new Universe(true);//ul.loadUniverse("out.txt");
+
+        //EL: Create StartGameWizard class
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         String server = "localhost";
-        int serverPort = 0, clientPort = 0;
+        int serverPort = 11111, clientPort = 22222;
         try {
             System.out.print("Input server address: ");
             server = br.readLine();
-            System.out.print("Input server port: ");
-            serverPort = Integer.valueOf(br.readLine());
-            System.out.print("Input your port: ");
-            clientPort = Integer.valueOf(br.readLine());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Client client = new Client(clientPort, u, server, serverPort);
+        ClientSender clientSender = new ClientSender(clientPort, u, server, serverPort);
         Player current = u.getPlayers().get(1);
         ViewFrame v = new ViewFrame(u, current);
-        while (!v.isVisible()) {
+
+        Wizard w = new Wizard(clientSender);
+        w.run();
+
+        /*while (!v.isVisible()) {
             String msg = null;
             try {
                 msg = br.readLine();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            client.eventCapture(Event.fromString(msg));
-        }
+            clientSender.eventCapture(Event.fromString(msg));
+        }*/
     }
 }

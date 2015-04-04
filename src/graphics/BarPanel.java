@@ -1,5 +1,6 @@
 package graphics;
 
+import events.*;
 import logic.Planet;
 import logic.Properties;
 
@@ -82,19 +83,22 @@ public class BarPanel extends JPanel {
 
     private void buttonGoldPush() {
         if (frame.currentObject instanceof Planet) {
-            ((Planet)frame.currentObject).buildGoldFactory();
+            //((Planet)frame.currentObject).buildGoldFactory();
+            frame.universe.eventCapture(events.Event.getGoldBuildEvent((Planet) frame.currentObject));
         }
     }
 
     private void buttonIronPush() {
         if (frame.currentObject instanceof Planet) {
-            ((Planet) frame.currentObject).buildIronFactory();
+            //((Planet) frame.currentObject).buildIronFactory();
+            frame.universe.eventCapture(events.Event.getIronBuildEvent((Planet) frame.currentObject));
         }
     }
 
     private void buttonAngarPush() {
         if (frame.currentObject instanceof Planet) {
-            ((Planet) frame.currentObject).buildAngar();
+            //((Planet) frame.currentObject).buildAngar();
+            frame.universe.eventCapture(events.Event.getAngarBuildEvent((Planet) frame.currentObject));
         }
     }
 
@@ -102,8 +106,7 @@ public class BarPanel extends JPanel {
         boolean build = false;
         if (frame.currentObject instanceof Planet) {
             build = !((Planet) frame.currentObject).isBuildShips();
-            ((Planet) frame.currentObject).
-                    startBuild(build);
+            ((Planet) frame.currentObject).startBuild(build);
             if (build)
                 buttonShip.setIcon(buttonShipIconTrue);
             else

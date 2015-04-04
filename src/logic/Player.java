@@ -67,10 +67,14 @@ public class Player {
         addShip(s, true);
     }
 
+    public void shipCreated(SpaceShip s) {
+        ships.add(s);
+    }
+
     public void addShip(SpaceShip s, boolean notify) {
         ships.add(s);
         if (notify)
-            getUniverse().notify(Event.getShipCreateEvent(s, s.getX(), s.getY()), null);
+            getUniverse().notify(Event.getShipCreateEvent(s, s.getX(), s.getY()));
     }
 
     public boolean addGold(double g) {

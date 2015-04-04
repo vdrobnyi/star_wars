@@ -29,8 +29,7 @@ public class ViewFrame extends JFrame implements events.EventListenerInterface {
     private BarPanel bar;
     private final JTextArea bar2 = new JTextArea(3, 62);
     private final JScrollPane scroll = new JScrollPane(bar2);
-
-
+    private ViewFrame frame;
     public ViewFrame(Universe u, Player current) {
         currentPlayerNum = 0;
         currentShipNum = 0;
@@ -74,7 +73,7 @@ public class ViewFrame extends JFrame implements events.EventListenerInterface {
         //setUndecorated(true);
         //setExtendedState(JFrame.MAXIMIZED_BOTH);
         //setVisible(true);
-
+        frame = this;
         bar2.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -82,7 +81,8 @@ public class ViewFrame extends JFrame implements events.EventListenerInterface {
                 System.out.println(e.getKeyCode() + "b");
                 if (e.getKeyCode() == 10) {
                     Event evt = events.Event.fromString(bar2.getText());
-                    universe.notify(evt, null);
+                    evt.setFrom(frame);
+                    universe.notify(evt);
                     universe.eventCapture(evt);
                 }
             }
@@ -100,9 +100,28 @@ public class ViewFrame extends JFrame implements events.EventListenerInterface {
     public void eventCapture(events.Event evt) {
         //System.out.println(evt);
         addText(evt.toString());
+        switch (evt.getType()) {
+            case MESSAGE:
+                if (evt.getProperty("pos") != null) {
+                    setCurrentPlayer(universe.getPlayerById(
+                            Integer.parseInt(evt.getProperty("pos")) - 1));
+                }
+                break;
+            case START_GAME:
+                setVisible(true);
+                break;
+            case CREATE_GAME:
+                setCurrentPlayer(universe.getPlayerById(0));
+                break;
+            case END_GAME:
+                end();
+                break;
+        }
     }
 
     public void end() {
+        Event event = new Event(Event.GameEventType.END_GAME);
+        universe.notify();
         System.out.println("Game end");
         System.exit(0);
     }

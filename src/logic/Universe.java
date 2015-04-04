@@ -6,7 +6,6 @@ import graphics.ViewFrame;
 
 import java.util.*;
 
-
 public class Universe {
     private int tickNumber;
     private List<Player> players;
@@ -74,20 +73,10 @@ public class Universe {
         players.get(0).addShip(new SpaceShip(-0.76, -0.83, players.get(0), IdGenerator.getNewId(), this));
         players.get(1).addShip(new SpaceShip(-0.73+0.5, -0.78+0.5, players.get(1), IdGenerator.getNewId(), this));
         players.get(1).addShip(new SpaceShip(-0.82+0.5, -0.82+0.5, players.get(1), IdGenerator.getNewId(), this));
-        notify(new Event(Event.GameEventType.INFO), null);
     }
 
     public void addListener(EventListenerInterface l) {
         listeners.add(l);
-    }
-
-    private ViewFrame getViewFrame() {
-        for (EventListenerInterface l : listeners) {
-            if (l instanceof ViewFrame) {
-                return (ViewFrame) l;
-            }
-        }
-        return null;
     }
 
     public synchronized void eventCapture(Event event) {
@@ -97,7 +86,7 @@ public class Universe {
         Double x;
         Double y;
         Player p, p2;
-
+        //EL: плохо в модели знать детали про View
         switch (event.getType()) {
             case MESSAGE:
                 String out = "";
@@ -105,11 +94,6 @@ public class Universe {
                     out += e.getKey() + ":" + e.getValue() + "  ";
                 }
                 System.out.println(out);
-                if (event.getProperty("pos") != null) {
-                    getViewFrame().setCurrentPlayer(
-                            getPlayerById(
-                                    Integer.parseInt(event.getProperty("pos")) - 1 ));
-                }
                 break;
             case LIST:
                 break;
@@ -117,70 +101,71 @@ public class Universe {
                 break;
             case JOIN_GAME:
                 break;
-            case CREATE_GAME:
-                getViewFrame().setCurrentPlayer(getPlayerById(0));
-                break;
             case END_GAME:
                 break;
             case START_GAME:
-                getViewFrame().setVisible(true);
                 break;
             case SHIP_MOVE:
-                ship_id = Integer.valueOf(event.getProperty("ship_id"));
-                x = Double.valueOf(event.getProperty("x"));
-                y = Double.valueOf(event.getProperty("y"));
+                ship_id = event.getInteger("ship_id");//Integer.valueOf(event.getProperty("ship_id"));
+                //EL: event.getDouble("x")
+                x = event.getDouble("x");//Double.valueOf(event.getProperty("x"));
+                y = event.getDouble("y");//Double.valueOf(event.getProperty("y"));
                 SpaceShip sp = getShipById(ship_id);
                 sp.move(x, y, false);
                 break;
             case SHIP_CREATE:
-                owner_id = Integer.valueOf(event.getProperty("owner_id"));
-                ship_id = Integer.valueOf(event.getProperty("ship_id"));
-                x = Double.valueOf(event.getProperty("x"));
-                y = Double.valueOf(event.getProperty("y"));
+                owner_id = event.getInteger("owner_id");//Integer.valueOf(event.getProperty("owner_id"));
+                ship_id = event.getInteger("ship_id");//Integer.valueOf(event.getProperty("ship_id"));
+                x = event.getDouble("x");//Double.valueOf(event.getProperty("x"));
+                y = event.getDouble("y");//Double.valueOf(event.getProperty("y"));
                 p = getPlayerById(owner_id);
                 SpaceShip s = new SpaceShip(x, y, p, ship_id, this);
-                p.addShip(s, false);
+                p.shipCreated(s);
                 break;
             case PLANET_CAPTURE:
-                planet_id = Integer.valueOf(event.getProperty("planet_id"));
-                owner_id = Integer.valueOf(event.getProperty("new_owner_id"));
+                planet_id = event.getInteger("planet_id");//Integer.valueOf(event.getProperty("planet_id"));
+                owner_id = event.getInteger("new_owner_id");//Integer.valueOf(event.getProperty("new_owner_id"));
                 Planet pl = getPlanetById(planet_id);
                 p = getPlayerById(owner_id);
                 pl.changeMaster(p);
                 break;
             case ATTACK:
-                int attacker_id = Integer.valueOf(event.getProperty("attacker_id"));
-                int attacked_id = Integer.valueOf(event.getProperty("attacked_id"));
-                double damage = Double.valueOf(event.getProperty("damage"));
+                int attacker_id = event.getInteger("attacker_id");//Integer.valueOf(event.getProperty("attacker_id"));
+                int attacked_id = event.getInteger("attacked_id");//Integer.valueOf(event.getProperty("attacked_id"));
+                double damage = event.getDouble("damage");//Double.valueOf(event.getProperty("damage"));
                 SpaceShip s1 = getShipById(attacker_id);
                 SpaceShip s2 = getShipById(attacked_id);
                 attack(s1, s2, damage);
                 break;
             case SHIP_REMOVE:
-                ship_id = Integer.valueOf(event.getProperty("ship_id"));
+                ship_id = event.getInteger("ship_id");//Integer.valueOf(event.getProperty("ship_id"));
                 SpaceShip ship = getShipById(ship_id);
                 ship.kill();
                 break;
             case GOLD_BUILD:
-                planet_id = Integer.valueOf(event.getProperty("planet_id"));
+                planet_id = event.getInteger("planet_id");//Integer.valueOf(event.getProperty("planet_id"));
                 pl = getPlanetById(planet_id);
                 pl.buildGoldFactory(false);
+                break;
             case IRON_BUILD:
-                planet_id = Integer.valueOf(event.getProperty("planet_id"));
+                planet_id = event.getInteger("planet_id");//Integer.valueOf(event.getProperty("planet_id"));
                 pl = getPlanetById(planet_id);
                 pl.buildIronFactory(false);
+                break;
             case ANGAR_BUILD:
-                planet_id = Integer.valueOf(event.getProperty("planet_id"));
+                planet_id = event.getInteger("planet_id");//Integer.valueOf(event.getProperty("planet_id"));
                 pl = getPlanetById(planet_id);
                 pl.buildAngar(false);
+                break;
         }
+        notify(event);
     }
 
 
 
-    public void notify(Event event, EventListenerInterface from) {
+    public void notify(Event event) {
         for (EventListenerInterface l : listeners) {
-            if (l.equals(from)) continue;
+            if (l.equals(event.getFrom())) continue;
             l.eventCapture(event);
         }
     }
@@ -286,7 +271,7 @@ public class Universe {
 
     public void attack(SpaceShip attacker, SpaceShip target) {
         double damage = Properties.properties.SHIP_DAMAGE * (rand.nextInt(Properties.properties.ATTACK_RANGE));
-        notify(Event.getAttackEvent(attacker, target, damage), null);
+        notify(Event.getAttackEvent(attacker, target, damage));
         target.attacked(damage);
         makeBullet(attacker, target);
     }

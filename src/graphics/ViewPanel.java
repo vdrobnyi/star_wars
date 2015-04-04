@@ -1,5 +1,7 @@
 package graphics;
 
+import events.*;
+import events.Event;
 import logic.*;
 
 import javax.swing.*;
@@ -78,9 +80,16 @@ public class ViewPanel extends JPanel implements ActionListener {
                     }
                 }
                 else {
-                    if (e.getButton() == MouseEvent.BUTTON3 && frame.currentObject != null && frame.currentObject instanceof SpaceShip)
-                        ((SpaceShip) frame.currentObject).move(x, y);
-                    else if (e.getButton() == MouseEvent.BUTTON3 && frame.currentObject != null && frame.currentObject instanceof Planet)
+                    if (e.getButton() == MouseEvent.BUTTON3
+                            && frame.currentObject != null
+                            && frame.currentObject instanceof SpaceShip) {
+                        events.Event event = Event.getMoveEvent((SpaceShip) frame.currentObject, x, y);
+                        event.setFrom(frame);
+                        universe.eventCapture(event);
+                    }
+                    else if (e.getButton() == MouseEvent.BUTTON3
+                            && frame.currentObject != null
+                            && frame.currentObject instanceof Planet)
                         ((Planet) frame.currentObject).setTarget(x, y);
                 }
             }

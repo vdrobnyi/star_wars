@@ -9,8 +9,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -27,8 +25,8 @@ public class Server {
         CopyOnWriteArraySet<Integer> ports = new CopyOnWriteArraySet<>();
         CopyOnWriteArraySet<Pair<InetAddress, Integer>> addresses = new CopyOnWriteArraySet<>();
 
-        MessageSenderS producer = new MessageSenderS(queue, ports, addresses);
-        MessageGetterS consumer = new MessageGetterS(queue, ports, addresses);
+        MessageSender producer = new MessageSender(queue, ports, addresses);
+        MessageGetter consumer = new MessageGetter(queue, ports, addresses);
 
 
         new Thread(producer).start();
@@ -36,14 +34,14 @@ public class Server {
     }
 }
 
-class MessageSenderS implements Runnable {
+class MessageSender implements Runnable {
     BlockingQueue<Pair<Pair<InetAddress, Integer>, String> > queue = null;
     CopyOnWriteArraySet<Integer> ports = null;
     CopyOnWriteArraySet<Pair> addresses = new CopyOnWriteArraySet<>();
 
     Map<String, Game> games = new HashMap<>();
 
-    MessageSenderS(BlockingQueue q, CopyOnWriteArraySet p, CopyOnWriteArraySet a) {
+    MessageSender(BlockingQueue q, CopyOnWriteArraySet p, CopyOnWriteArraySet a) {
         queue = q;
         ports = p;
         addresses = a;
@@ -73,7 +71,7 @@ class MessageSenderS implements Runnable {
             }
             try {
                 Event evt = fromString(msg), answer = null;
-                String name;
+                String name = null;
                 switch (evt.getType()) {
                     case LIST:
                         answer = new Event(MESSAGE);
@@ -87,13 +85,13 @@ class MessageSenderS implements Runnable {
                         answer = new Event(MESSAGE);
                         name = evt.getProperty("game_name");
                         answer.setProperty("num", games.get(name).getNumberOfPlayers().toString());
-                        answer.setProperty("started", games.get(name).isStarted.toString());
+                        answer.setProperty("started", games.get(name).getIsStarted().toString());
                         break;
                     case JOIN_GAME:
                         answer = new Event(MESSAGE);
                         name = evt.getProperty("game_name");
                         games.get(name).addPlayer(new Pair(adr, senderPort));
-                        answer.setProperty("pos", String.valueOf(games.get(name).players.size()));
+                        answer.setProperty("pos", String.valueOf(games.get(name).getPlayers().size()));
                         break;
                     case CREATE_GAME:
                         answer = new Event(MESSAGE);
@@ -103,12 +101,28 @@ class MessageSenderS implements Runnable {
                         break;
                     case START_GAME:
                         name = evt.getProperty("game_name");
-                        for (Pair<InetAddress, Integer> player: games.get(name).players) {
+                        for (Pair<InetAddress, Integer> player: games.get(name).getPlayers()) {
                             DatagramSocket socket = new DatagramSocket();
                             DatagramPacket packet = encodePacket(evt.toString());
                             packet.setSocketAddress(new InetSocketAddress(player.getKey(), player.getValue()));
                             socket.send(packet);
                         }
+                        continue;
+                    case END_GAME:
+                        for (Map.Entry<String, Game> g : games.entrySet()) {
+                            if (g.getValue().contains(new Pair<>(adr, senderPort))) {
+                                name = g.getKey();
+                                break;
+                            }
+                        }
+                        if (name == null) continue;
+                        for (Pair<InetAddress, Integer> player: games.get(name).getPlayers()) {
+                            DatagramSocket socket = new DatagramSocket();
+                            DatagramPacket packet = encodePacket(evt.toString());
+                            packet.setSocketAddress(new InetSocketAddress(player.getKey(), player.getValue()));
+                            socket.send(packet);
+                        }
+                        games.remove(name);
                         continue;
                     default:
                         Game current = null;
@@ -119,7 +133,7 @@ class MessageSenderS implements Runnable {
                             }
                         }
                         if (current == null) continue;
-                        for (Pair<InetAddress, Integer> player: current.players) {
+                        for (Pair<InetAddress, Integer> player: current.getPlayers()) {
                             if (player.equals(new Pair(adr, senderPort)))
                                 continue;
                             DatagramSocket socket = new DatagramSocket();
@@ -139,11 +153,11 @@ class MessageSenderS implements Runnable {
     }
 }
 
-class MessageGetterS implements Runnable {
+class MessageGetter implements Runnable {
     BlockingQueue<Pair<Pair<InetAddress, Integer>, String> > queue = null;
     CopyOnWriteArraySet<Integer> ports = null;
     CopyOnWriteArraySet<Pair> addresses = new CopyOnWriteArraySet<>();
-    MessageGetterS(BlockingQueue q, CopyOnWriteArraySet p, CopyOnWriteArraySet a) {
+    MessageGetter(BlockingQueue q, CopyOnWriteArraySet p, CopyOnWriteArraySet a) {
         queue = q;
         ports = p;
         addresses = a;

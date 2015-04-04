@@ -51,7 +51,7 @@ public class SpaceShip extends UniverseObject {
             p.leavePlanet(this);
         }
         getMaster().removeShip(this);
-        getUniverse().notify(Event.getShipRemoveEvent(this), null);
+        //getUniverse().notify(Event.getShipRemoveEvent(this));
     }
 
     public boolean isAlive() {
@@ -62,8 +62,8 @@ public class SpaceShip extends UniverseObject {
         state = State.MOVE;
         targetX = x;
         targetY = y;
-        if (notify)
-            getUniverse().notify(Event.getMoveEvent(this, x, y), null);
+        /*if (notify)
+            getUniverse().notify(Event.getMoveEvent(this, x, y), null);*/
     }
 
     public void move(double x, double y) {

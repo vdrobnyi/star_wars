@@ -7,11 +7,28 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Game {
-    public List<Pair<InetAddress, Integer>> players = new LinkedList<>();
-    public Boolean isStarted = false;
+    //EL: private fields
+    private List<Pair<InetAddress, Integer>> players = new LinkedList<>();
 
+    private Boolean isStarted = false;
     public Integer getNumberOfPlayers() {
         return players.size();
+    }
+
+    public List<Pair<InetAddress, Integer>> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(List<Pair<InetAddress, Integer>> players) {
+        this.players = players;
+    }
+
+    public Boolean getIsStarted() {
+        return isStarted;
+    }
+
+    public void setIsStarted(Boolean isStarted) {
+        this.isStarted = isStarted;
     }
 
     public void addPlayer(Pair<InetAddress, Integer> player) {
