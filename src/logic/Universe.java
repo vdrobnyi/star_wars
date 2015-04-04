@@ -106,17 +106,10 @@ public class Universe {
             case START_GAME:
                 break;
             case SHIP_MOVE:
-<<<<<<< HEAD
                 ship_id = event.getInteger("ship_id");//Integer.valueOf(event.getProperty("ship_id"));
                 //EL: event.getDouble("x")
                 x = event.getDouble("x");//Double.valueOf(event.getProperty("x"));
                 y = event.getDouble("y");//Double.valueOf(event.getProperty("y"));
-=======
-                ship_id = Integer.valueOf(event.getProperty("ship_id"));
-                //EL: event.getDouble("x")
-                x = Double.valueOf(event.getProperty("x"));
-                y = Double.valueOf(event.getProperty("y"));
->>>>>>> 85142192d7b1dad2d0adb4d13258c610316a590e
                 SpaceShip sp = getShipById(ship_id);
                 sp.move(x, y, false);
                 break;
